@@ -8,7 +8,7 @@ namespace LuaInterface
 {
     public class LuaStatePtr
     {
-        public IntPtr L;
+        protected IntPtr L;
 
         string jit = @"            
         function Euler(x, y, z)
@@ -686,5 +686,13 @@ namespace LuaInterface
         {
             return LuaDLL.lua_gethookcount(L);
         }
+
+#if UNITY_EDITOR
+
+        public IntPtr LuaPtrForEditorOnly
+        {
+            get { return L; }
+        }
+#endif
     }
 }
