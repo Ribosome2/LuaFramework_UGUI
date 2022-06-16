@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using LuaInterface;
 
 namespace LuaVarWatcher
 {
@@ -8,17 +9,19 @@ namespace LuaVarWatcher
         public string key;
         public string valueType;
         public string value;
-        public bool isTable = false;
-
+        public LuaTypes luaValueType;
         public string GetDisplayName()
         {
-            if (isTable)
+            if (luaValueType==LuaTypes.LUA_TTABLE)
             {
                 return string.Format("{0}:table: &{1}", key, value);
+            }else if (luaValueType == LuaTypes.LUA_TFUNCTION)
+            {
+                return string.Format("{0}:function: &{1}", key, value);
             }
             else
             {
-                return string.Format("[{0}]:{1}", key, value);
+                return string.Format("type:{0} [{1}]:{2}",luaValueType, key, value);
             }
         }
     };

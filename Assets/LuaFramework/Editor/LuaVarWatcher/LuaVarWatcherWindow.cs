@@ -5,6 +5,7 @@ using System.Reflection;
 using LuaFramework;
 using LuaInterface;
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using Object = System.Object;
 
@@ -19,22 +20,27 @@ namespace LuaVarWatcher
         }
 
         private Dictionary<string, LuaNode> scanMap = new Dictionary<string, LuaNode>();
+        private string mTargetTablePath = "myTable";
         LuaVarTreeView mLuaVarTreeView ;
+        private SearchField mSearchField;
         void OnGUI()
         {
             LuaManager mgr = AppFacade.Instance.GetManager<LuaManager>(ManagerName.Lua);
             if (mgr != null)
             {
-                if (GUILayout.Button("Test"))
+                GUILayout.Label("目标table路径：");
+                mTargetTablePath=EditorGUILayout.TextField("", mTargetTablePath);
+                if (GUILayout.Button("ShowMe"))
                 {
                     var luaState = mgr.lua;
                     var L = mgr.lua.L;
                     var oldTop = LuaDLL.lua_gettop(L);
-                    LuaDLL.lua_getglobal(L, "myTable");
+                    LuaDLL.lua_getglobal(L, mTargetTablePath);
                     scanMap.Clear();
                     var rootNode =LuaVarNodeParser.ParseLuaTable(luaState.L, scanMap);
                     LuaDLL.lua_settop(L,oldTop);
                     mLuaVarTreeView.luaNodeRoot = rootNode;
+                    mLuaVarTreeView.RootNodeName = mTargetTablePath;
                     mLuaVarTreeView.Reload();
                 }
             }
@@ -46,11 +52,13 @@ namespace LuaVarWatcher
 
             if (mLuaVarTreeView != null && mLuaVarTreeView.luaNodeRoot!=null)
             {
+                mLuaVarTreeView.searchString = mSearchField.OnGUI(new Rect(0, 60, position.width, 30), mLuaVarTreeView.searchString);
                 mLuaVarTreeView.OnGUI(new Rect(0,100,position.width,position.height-100));
             }
             else
             {
                 mLuaVarTreeView = new LuaVarTreeView(new LuaVarTreeViewState());
+                mSearchField = new SearchField();
             }
         }
     }

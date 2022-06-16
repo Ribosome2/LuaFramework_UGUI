@@ -8,6 +8,7 @@ namespace LuaVarWatcher
     public class LuaVarTreeView:TreeView
     {
         public LuaNode luaNodeRoot;
+        public string  RootNodeName;
         public LuaVarTreeView(TreeViewState state) : base(state)
         {
         }
@@ -16,37 +17,32 @@ namespace LuaVarWatcher
         {
         }
 
+        int ID = 0;
 
+        void AddVarNode(TreeViewItem parentItem, LuaNode node)
+        {
+            var contentNode = new TreeViewItem(ID++, parentItem.depth+1, node.content.GetDisplayName());
+            parentItem.AddChild(contentNode);
+            foreach (var childContent in node.childContents)
+            {
+                var childContentItem = new TreeViewItem(ID++, contentNode.depth, childContent.GetDisplayName());
+                contentNode.AddChild(childContentItem);
+            }
+            foreach (var childNode in node.childNodes)
+            {
+                AddVarNode(contentNode,childNode);
+            }
+        }
 
         protected override TreeViewItem BuildRoot()
         {
             TreeViewItem root = new TreeViewItem(-1,-1,"VarNodeWatcher:");
-            var queue =new  Queue<LuaNode>();
-            queue.Enqueue(luaNodeRoot);
-            int ID = 1;
-            int depth = 0;
-            while (queue.Count>0)
+            var firstShowNode = new TreeViewItem(ID++,0,RootNodeName);
+            root.AddChild(firstShowNode);
+            if (luaNodeRoot != null)
             {
-                var node = queue.Dequeue();
-                foreach (var childNode in node.childNodes)
-                {
-                    queue.Enqueue(childNode);
-                }
-
-                var contentNode = new TreeViewItem(ID++, depth, node.content.GetDisplayName());
-                root.AddChild(contentNode);
-                Debug.Log("Add "+contentNode.displayName);
-
-                foreach (var childContent in node.childContents)
-                {
-                    var childContentItem = new TreeViewItem(ID++, depth, childContent.GetDisplayName());
-                    root.AddChild(childContentItem);
-                    Debug.Log("Add " + contentNode.displayName);
-                }
-
-                depth++;
+                AddVarNode(firstShowNode, luaNodeRoot);
             }
-
             return root;
         }
     }
