@@ -6,16 +6,16 @@ using UnityEngine.Assertions;
 
 namespace LuaVarWatcher
 {
+    // All columns
+    public enum LuaVarColumns
+    {
+        VarName,
+        VarType,
+
+    }
     public class LuaVarMultiColumnState
     {
-        // All columns
-        enum LuaVarColumns
-        {
-            VarName,
-            VarValue,
-            VarType,
 
-        }
 
         public static MultiColumnHeaderState CreateDefaultMultiColumnHeaderState(float treeViewWidth)
         {
@@ -30,18 +30,6 @@ namespace LuaVarWatcher
                     sortingArrowAlignment = TextAlignment.Right,
                     width = 130,
                     minWidth = 130,
-                    autoResize = false,
-                    allowToggleVisibility = true
-                },
-                new MultiColumnHeaderState.Column
-                {
-                    headerContent = new GUIContent("Value"),
-                    contextMenuText = "Value",
-                    headerTextAlignment = TextAlignment.Center,
-                    sortedAscending = true,
-                    sortingArrowAlignment = TextAlignment.Right,
-                    width = 300,
-                    minWidth = 100,
                     autoResize = false,
                     allowToggleVisibility = true
                 },

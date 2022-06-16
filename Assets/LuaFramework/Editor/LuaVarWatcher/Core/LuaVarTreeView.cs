@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 namespace LuaVarWatcher
 {
-
-    public class LuaVarTreeView:TreeView
+    public class LuaVarTreeView : TreeView
     {
         public LuaNode luaNodeRoot;
-        public string  RootNodeName;
+        public string RootNodeName;
+
         public LuaVarTreeView(TreeViewState state) : base(state)
         {
         }
@@ -23,12 +24,17 @@ namespace LuaVarWatcher
         {
             foreach (var childContent in node.childContents)
             {
-                var childContentItem = new TreeViewItem(ID++, parentItem.depth+1, childContent.GetDisplayName());
+                var childContentItem =
+                    new LuaVarTreeViewItem(ID++, parentItem.depth + 1, childContent.GetDisplayName());
+                childContentItem.luaData = childContent;
                 parentItem.AddChild(childContentItem);
             }
+
             foreach (var childNode in node.childNodes)
             {
-                var childContentItem = new TreeViewItem(ID++, parentItem.depth + 1, childNode.content.GetDisplayName());
+                var childContentItem =
+                    new LuaVarTreeViewItem(ID++, parentItem.depth + 1, childNode.content.GetDisplayName());
+                childContentItem.luaData = childNode.content;
                 parentItem.AddChild(childContentItem);
                 AddVarNode(childContentItem, childNode);
             }
@@ -36,14 +42,15 @@ namespace LuaVarWatcher
 
         protected override TreeViewItem BuildRoot()
         {
-            TreeViewItem root = new TreeViewItem(-1,-1,"VarNodeWatcher:");
-            var firstShowNode = new TreeViewItem(ID++,0,RootNodeName);
+            TreeViewItem root = new TreeViewItem(-1, -1, "VarNodeWatcher:");
+            var firstShowNode = new TreeViewItem(ID++, 0, RootNodeName);
             root.AddChild(firstShowNode);
             if (luaNodeRoot != null)
             {
-                firstShowNode.displayName =firstShowNode.displayName+" &"+ luaNodeRoot.content.value;
+                firstShowNode.displayName = firstShowNode.displayName + " &" + luaNodeRoot.content.value;
                 AddVarNode(firstShowNode, luaNodeRoot);
             }
+
             return root;
         }
 
@@ -51,9 +58,41 @@ namespace LuaVarWatcher
         {
             base.DoubleClickedItem(id);
             searchString = "";
-            SetSelection(new List<int>(){id});
-            this.SetExpandedRecursive(id,true);
+            SetSelection(new List<int>() {id});
+            this.SetExpandedRecursive(id, true);
             SetFocusAndEnsureSelectedItem();
+        }
+
+        protected override void RowGUI(RowGUIArgs args)
+        {
+            var item =  args.item as LuaVarTreeViewItem;
+            if (item != null)
+            {
+                for (int i = 0; i < args.GetNumVisibleColumns(); ++i)
+                {
+                    CellGUI(args.GetCellRect(i), item, (LuaVarColumns) args.GetColumn(i), ref args);
+                }
+            }
+        }
+
+        void CellGUI(Rect cellRect, LuaVarTreeViewItem item, LuaVarColumns column, ref RowGUIArgs args)
+        {
+            CenterRectUsingSingleLineHeight(ref cellRect);
+
+            switch (column)
+            {
+                case LuaVarColumns.VarName:
+                {
+
+                    GUI.Label(cellRect, item.luaData.GetDisplayName().ToString());
+                    break;
+                }
+                case LuaVarColumns.VarType:
+                {
+                    GUI.Label(cellRect,item.luaData.luaValueType.ToString());
+                    break;
+                }
+            }
         }
     }
 }
