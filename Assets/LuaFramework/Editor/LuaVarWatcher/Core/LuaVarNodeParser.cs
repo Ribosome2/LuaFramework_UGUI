@@ -105,6 +105,9 @@ namespace LuaVarWatcher
             else if (keyType == LuaTypes.LUA_TSTRING)
             {
                 childContents.key = LuaDLL.lua_tostring(L, -2);
+            }else if (keyType == LuaTypes.LUA_TTABLE)
+            {
+                childContents.key = LuaDLL.lua_topointer(L, -2).ToString();
             }
 
             return childContents;

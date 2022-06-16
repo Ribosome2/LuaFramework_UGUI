@@ -21,7 +21,7 @@ namespace LuaVarWatcher
             }
             else
             {
-                return string.Format("type:{0} [{1}]:{2}",luaValueType, key, value);
+                return string.Format(" [{0}]:{1}", key, value);
             }
         }
     };

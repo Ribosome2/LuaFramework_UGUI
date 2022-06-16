@@ -21,16 +21,16 @@ namespace LuaVarWatcher
 
         void AddVarNode(TreeViewItem parentItem, LuaNode node)
         {
-            var contentNode = new TreeViewItem(ID++, parentItem.depth+1, node.content.GetDisplayName());
-            parentItem.AddChild(contentNode);
             foreach (var childContent in node.childContents)
             {
-                var childContentItem = new TreeViewItem(ID++, contentNode.depth, childContent.GetDisplayName());
+                var childContentItem = new TreeViewItem(ID++, parentItem.depth+1, childContent.GetDisplayName());
                 parentItem.AddChild(childContentItem);
             }
             foreach (var childNode in node.childNodes)
             {
-                AddVarNode(contentNode,childNode);
+                var childContentItem = new TreeViewItem(ID++, parentItem.depth + 1, childNode.content.GetDisplayName());
+                parentItem.AddChild(childContentItem);
+                AddVarNode(childContentItem, childNode);
             }
         }
 
@@ -41,6 +41,7 @@ namespace LuaVarWatcher
             root.AddChild(firstShowNode);
             if (luaNodeRoot != null)
             {
+                firstShowNode.displayName =firstShowNode.displayName+" &"+ luaNodeRoot.content.value;
                 AddVarNode(firstShowNode, luaNodeRoot);
             }
             return root;

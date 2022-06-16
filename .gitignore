@@ -7,3 +7,5 @@ Assets/StreamingAssets/
 Assembly-CSharp.csproj
 Assembly-CSharp-Editor.csproj
 Assets/StreamingAssets.meta
+Assets/Resources
+Assets/Resources.meta

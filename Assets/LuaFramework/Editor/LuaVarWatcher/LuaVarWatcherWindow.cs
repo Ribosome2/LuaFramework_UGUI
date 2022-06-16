@@ -57,15 +57,20 @@ namespace LuaVarWatcher
             }
             else
             {
-                if (mLuaVarTreeView == null)
-                {
-                    mLuaVarTreeView = new LuaVarTreeView(new LuaVarTreeViewState());
-                }
+                CheckInit();
+            }
+        }
 
-                if (mSearchField == null)
-                {
-                    mSearchField = new SearchField();
-                }
+        private void CheckInit()
+        {
+            if (mLuaVarTreeView == null)
+            {
+                mLuaVarTreeView = new LuaVarTreeView(new LuaVarTreeViewState());
+            }
+
+            if (mSearchField == null)
+            {
+                mSearchField = new SearchField();
             }
         }
     }
