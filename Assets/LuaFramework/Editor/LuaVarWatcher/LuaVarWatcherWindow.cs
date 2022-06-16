@@ -27,20 +27,24 @@ namespace LuaVarWatcher
         private MultiColumnHeader mMultiColumnHeader;
         void OnGUI()
         {
-            var luaHandle = LuaHandleInterface.GetLuaPtr();
-            if (luaHandle != IntPtr.Zero)
+            var L = LuaHandleInterface.GetLuaPtr();
+            if (L != IntPtr.Zero)
             {
                 GUILayout.Label("目标table路径：");
                 mTargetTablePath = EditorGUILayout.TextField("", mTargetTablePath);
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("扫描输入内容"))
                 {
-                    ScanTargetTable(luaHandle);
+                    ScanTargetTable(L);
                 }
                 if (GUILayout.Button("全局表"))
                 {
                     mTargetTablePath = "_G";
-                    ScanTargetTable(luaHandle);
+                    ScanTargetTable(L);
+                }
+                if(GUILayout.Button("执行输入指令"))
+                {
+                    LuaDLL.luaL_dostring(L, mTargetTablePath);
                 }
                 GUILayout.EndHorizontal();
             }
