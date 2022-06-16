@@ -73,6 +73,10 @@ namespace LuaVarWatcher
                     CellGUI(args.GetCellRect(i), item, (LuaVarColumns) args.GetColumn(i), ref args);
                 }
             }
+            else
+            {
+                base.RowGUI(args);
+            }
         }
 
         void CellGUI(Rect cellRect, LuaVarTreeViewItem item, LuaVarColumns column, ref RowGUIArgs args)
@@ -84,6 +88,7 @@ namespace LuaVarWatcher
                 case LuaVarColumns.VarName:
                 {
 
+                    cellRect.x += GetContentIndent(item);
                     GUI.Label(cellRect, item.luaData.GetDisplayName().ToString());
                     break;
                 }
