@@ -1,5 +1,5 @@
 --主入口函数。从这里开始lua逻辑
-myTable={11,"dd",seee={222,444}}
+myTable={11,"dd",seee={222,444,4.34}}
 function Main()					
 	print("logic start")	 		
 end

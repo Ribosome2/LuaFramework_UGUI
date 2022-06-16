@@ -1,27 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEditor.IMGUI.Controls;
+using UnityEngine;
 
 namespace LuaVarWatcher
 {
-    public class LuaNodeItem
-    {
-        public string keyType;
-        public string key;
-        public string valueType;
-        public string value;
-    };
-
-    public class LuaNode
-    {
-        public LuaNodeItem content = new LuaNodeItem();
-        public int ID;
-        public List<LuaNodeItem> childContents = new List<LuaNodeItem>();
-        public List<LuaNode> childNodes = new List<LuaNode>();
-    };
-
-
-
-
 
     public class LuaVarTreeView:TreeView
     {
@@ -33,6 +15,8 @@ namespace LuaVarWatcher
         public LuaVarTreeView(TreeViewState state, MultiColumnHeader multiColumnHeader) : base(state, multiColumnHeader)
         {
         }
+
+
 
         protected override TreeViewItem BuildRoot()
         {
@@ -49,9 +33,15 @@ namespace LuaVarWatcher
                     queue.Enqueue(childNode);
                 }
 
+                var contentNode = new TreeViewItem(ID++, depth, node.content.GetDisplayName());
+                root.AddChild(contentNode);
+                Debug.Log("Add "+contentNode.displayName);
+
                 foreach (var childContent in node.childContents)
                 {
-                    root.AddChild(new TreeViewItem(ID++,depth,childContent.key+": "+childContent.value));
+                    var childContentItem = new TreeViewItem(ID++, depth, childContent.GetDisplayName());
+                    root.AddChild(childContentItem);
+                    Debug.Log("Add " + contentNode.displayName);
                 }
 
                 depth++;
