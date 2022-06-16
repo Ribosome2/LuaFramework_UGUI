@@ -26,7 +26,7 @@ namespace LuaVarWatcher
             foreach (var childContent in node.childContents)
             {
                 var childContentItem = new TreeViewItem(ID++, contentNode.depth, childContent.GetDisplayName());
-                contentNode.AddChild(childContentItem);
+                parentItem.AddChild(childContentItem);
             }
             foreach (var childNode in node.childNodes)
             {
@@ -45,5 +45,6 @@ namespace LuaVarWatcher
             }
             return root;
         }
+
     }
 }
