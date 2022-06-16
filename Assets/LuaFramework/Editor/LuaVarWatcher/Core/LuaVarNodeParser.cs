@@ -58,6 +58,7 @@ namespace LuaVarWatcher
                 if (childNode != null)
                 {
                     childNode.content.key = childContents.key;
+                    childNode.content.luaValueType = childContents.luaValueType;
                     luaNode.childNodes.Add(childNode);
                 }
             }

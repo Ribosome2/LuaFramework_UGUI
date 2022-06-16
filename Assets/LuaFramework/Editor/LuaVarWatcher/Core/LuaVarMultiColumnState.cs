@@ -28,7 +28,7 @@ namespace LuaVarWatcher
                     headerTextAlignment = TextAlignment.Center,
                     sortedAscending = true,
                     sortingArrowAlignment = TextAlignment.Right,
-                    width = 130,
+                    width = 300,
                     minWidth = 130,
                     autoResize = false,
                     allowToggleVisibility = true

@@ -32,18 +32,17 @@ namespace LuaVarWatcher
             {
                 GUILayout.Label("目标table路径：");
                 mTargetTablePath = EditorGUILayout.TextField("", mTargetTablePath);
-                if (GUILayout.Button("ShowMe"))
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("扫描输入内容"))
                 {
-                    var L = luaHandle;
-                    var oldTop = LuaDLL.lua_gettop(L);
-                    LuaDLL.lua_getglobal(L, mTargetTablePath);
-                    scanMap.Clear();
-                    var rootNode = LuaVarNodeParser.ParseLuaTable(L, scanMap);
-                    LuaDLL.lua_settop(L, oldTop);
-                    mLuaVarTreeView.luaNodeRoot = rootNode;
-                    mLuaVarTreeView.RootNodeName = mTargetTablePath;
-                    mLuaVarTreeView.Reload();
+                    ScanTargetTable(luaHandle);
                 }
+                if (GUILayout.Button("全局表"))
+                {
+                    mTargetTablePath = "_G";
+                    ScanTargetTable(luaHandle);
+                }
+                GUILayout.EndHorizontal();
             }
             else
             {
@@ -62,11 +61,20 @@ namespace LuaVarWatcher
             }
         }
 
+        private void ScanTargetTable(IntPtr L)
+        {
+            var oldTop = LuaDLL.lua_gettop(L);
+            LuaDLL.lua_getglobal(L, mTargetTablePath);
+            scanMap.Clear();
+            var rootNode = LuaVarNodeParser.ParseLuaTable(L, scanMap);
+            LuaDLL.lua_settop(L, oldTop);
+            mLuaVarTreeView.luaNodeRoot = rootNode;
+            mLuaVarTreeView.RootNodeName = mTargetTablePath;
+            mLuaVarTreeView.Reload();
+        }
 
-      
         private void CheckInit()
         {
-
 
             bool firstInit = m_MultiColumnHeaderState == null;
             var headerState = LuaVarMultiColumnState.CreateDefaultMultiColumnHeaderState(multiColumnTreeViewRect.width);
@@ -96,16 +104,6 @@ namespace LuaVarWatcher
         {
             get { return new Rect(20, 30, position.width - 40, position.height - 60); }
         }
-
-        Rect toolbarRect
-        {
-            get { return new Rect(20f, 10f, position.width - 40f, 20f); }
-        }
-
-        Rect bottomToolbarRect
-        {
-            get { return new Rect(20f, position.height - 18f, position.width - 40f, 16f); }
-        }
-
+  
     }
 }
