@@ -47,5 +47,13 @@ namespace LuaVarWatcher
             return root;
         }
 
+        protected override void DoubleClickedItem(int id)
+        {
+            base.DoubleClickedItem(id);
+            searchString = "";
+            SetSelection(new List<int>(){id});
+            this.SetExpandedRecursive(id,true);
+            SetFocusAndEnsureSelectedItem();
+        }
     }
 }
