@@ -4,7 +4,7 @@ using LuaInterface;
 
 namespace LuaFramework {
     public class LuaManager : Manager {
-        private LuaState lua;
+        public LuaState lua;
         private LuaLoader loader;
         private LuaLooper loop = null;
 

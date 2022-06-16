@@ -1,0 +1,9 @@
+﻿Assets/LuaFramework/ToLua/Source/Generate/
+Temp/
+Library/
+obj/Debug/
+Assets/StreamingAssets/
+.vs/
+Assembly-CSharp.csproj
+Assembly-CSharp-Editor.csproj
+Assets/StreamingAssets.meta
