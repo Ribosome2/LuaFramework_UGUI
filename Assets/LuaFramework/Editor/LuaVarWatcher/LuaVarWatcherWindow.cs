@@ -6,6 +6,7 @@ using LuaInterface;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+using UnityEngine.Assertions;
 using Object = System.Object;
 
 namespace LuaVarWatcher
@@ -61,11 +62,25 @@ namespace LuaVarWatcher
             }
         }
 
+
+      
         private void CheckInit()
         {
+
+
+            bool firstInit = m_MultiColumnHeaderState == null;
+            var headerState = LuaVarMultiColumnState.CreateDefaultMultiColumnHeaderState(multiColumnTreeViewRect.width);
+            if (MultiColumnHeaderState.CanOverwriteSerializedFields(m_MultiColumnHeaderState, headerState))
+                MultiColumnHeaderState.OverwriteSerializedFields(m_MultiColumnHeaderState, headerState);
+            m_MultiColumnHeaderState = headerState;
+
+            var multiColumnHeader = new MultiColumnHeader(headerState);
+            if (firstInit)
+                multiColumnHeader.ResizeToFit();
+
             if (mLuaVarTreeView == null)
             {
-                mLuaVarTreeView = new LuaVarTreeView(new LuaVarTreeViewState());
+                mLuaVarTreeView = new LuaVarTreeView(new LuaVarTreeViewState(), multiColumnHeader);
             }
 
             if (mSearchField == null)
@@ -73,5 +88,24 @@ namespace LuaVarWatcher
                 mSearchField = new SearchField();
             }
         }
+
+        [SerializeField] TreeViewState m_TreeViewState; // Serialized in the window layout file so it survives assembly reloading
+        [SerializeField] MultiColumnHeaderState m_MultiColumnHeaderState;
+        SearchField m_SearchField;
+        Rect multiColumnTreeViewRect
+        {
+            get { return new Rect(20, 30, position.width - 40, position.height - 60); }
+        }
+
+        Rect toolbarRect
+        {
+            get { return new Rect(20f, 10f, position.width - 40f, 20f); }
+        }
+
+        Rect bottomToolbarRect
+        {
+            get { return new Rect(20f, position.height - 18f, position.width - 40f, 16f); }
+        }
+
     }
 }
