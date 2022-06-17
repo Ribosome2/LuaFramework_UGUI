@@ -45,6 +45,7 @@ namespace LuaVarWatcher
             TreeViewItem root = new TreeViewItem(-1, -1, "VarNodeWatcher:");
             ID = 0;
             var firstShowNode = new TreeViewItem(ID++, 0, RootNodeName);
+            SetExpanded(firstShowNode.id,true);
             root.AddChild(firstShowNode);
             if (luaNodeRoot != null)
             {

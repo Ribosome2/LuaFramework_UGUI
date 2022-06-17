@@ -9,7 +9,8 @@ namespace LuaVarWatcher
     {
         private static string cleanDoubleToNumber(IntPtr luaState, int idx)
         {
-            return  LuaDLL.lua_tonumber(luaState, idx).ToString("G29");
+//            return  LuaDLL.lua_tonumber(luaState, idx).ToString("G29");//用G29会导致小数点不准确
+            return  LuaDLL.lua_tonumber(luaState, idx).ToString();
         }
 
         public static LuaNode ParseLuaTable(IntPtr L, Dictionary<string, LuaNode> scanMap)
@@ -31,66 +32,61 @@ namespace LuaVarWatcher
             scanMap[tableAddress] = luaNode;
 
             LuaDLL.lua_pushnil(L);
-            var top = LuaDLL.lua_gettop(L);
             while (LuaDLL.lua_next(L, -2) > 0)
             {
-                var keyTypeStr = LuaDLL.luaL_typename(L, -1);
-              
-
                 var childContents = ParseKey(L);
-                ParseValue(L, scanMap, childContents, luaNode, keyTypeStr);
-
+                var valueType = LuaDLL.lua_type(L, -1);
+                if (valueType == LuaTypes.LUA_TTABLE)
+                {
+                    var childNode = ParseLuaTable(L, scanMap);
+                    if (childNode != null)
+                    {
+                        childNode.content.key = childContents.key;
+                        childNode.content.luaValueType = childContents.luaValueType;
+                        luaNode.childNodes.Add(childNode);
+                    }
+                }
+                else
+                {
+                    ParseNoneTableValue(L, scanMap, childContents, luaNode);
+                }
                 LuaDLL.lua_pop(L, 1);
             }
 
             return luaNode;
         }
 
-        private static void ParseValue(IntPtr L, Dictionary<string, LuaNode> scanMap, LuaNodeItem childContents, LuaNode luaNode,
-            string keyTypeStr)
+        private static void ParseNoneTableValue(IntPtr L, Dictionary<string, LuaNode> scanMap, LuaNodeItem childContents, LuaNode luaNode)
         {
+            var keyTypeStr = LuaDLL.luaL_typename(L, -1);
             var valueTypeStr = LuaDLL.luaL_typename(L, -2);
             var valueType = LuaDLL.lua_type(L, -1);
             childContents.luaValueType = valueType;
-            if (valueType == LuaTypes.LUA_TTABLE)
+            childContents.keyType = keyTypeStr;
+            childContents.valueType = valueTypeStr;
+            luaNode.childContents.Add(childContents);
+            if (valueType == LuaTypes.LUA_TNUMBER)
             {
-                var childNode = ParseLuaTable(L, scanMap);
-                if (childNode != null)
-                {
-                    childNode.content.key = childContents.key;
-                    childNode.content.luaValueType = childContents.luaValueType;
-                    luaNode.childNodes.Add(childNode);
-                }
+                childContents.value = cleanDoubleToNumber(L, -1).ToString();
             }
-            else
+            else if (valueType == LuaTypes.LUA_TSTRING)
             {
-                childContents.keyType = keyTypeStr;
-                childContents.valueType = valueTypeStr;
-                luaNode.childContents.Add(childContents);
-                if (valueType == LuaTypes.LUA_TNUMBER)
-                {
-                    childContents.value = cleanDoubleToNumber(L, -1).ToString();
-                }
-                else if (valueType == LuaTypes.LUA_TSTRING)
-                {
-                    childContents.value = LuaDLL.lua_tostring(L, -1);
-                }
-
-                else if (valueType == LuaTypes.LUA_TSTRING)
-                {
-                    childContents.value = LuaDLL.lua_tostring(L, -1);
-                }else if (valueType == LuaTypes.LUA_TFUNCTION)
-                {
-                    childContents.value = LuaDLL.lua_tocfunction(L, -1).ToString();
-                }
-                else if (valueType == LuaTypes.LUA_TUSERDATA)
-                {
-                    childContents.value = LuaDLL.lua_touserdata(L, -1).ToString();
-                }
-                else if (valueType == LuaTypes.LUA_TBOOLEAN)
-                {
-                    childContents.value = LuaDLL.lua_toboolean(L, -1).ToString();
-                }
+                childContents.value = LuaDLL.lua_tostring(L, -1);
+            }
+            else if (valueType == LuaTypes.LUA_TSTRING)
+            {
+                childContents.value = LuaDLL.lua_tostring(L, -1);
+            }else if (valueType == LuaTypes.LUA_TFUNCTION)
+            {
+                childContents.value = LuaDLL.lua_tocfunction(L, -1).ToString();
+            }
+            else if (valueType == LuaTypes.LUA_TUSERDATA)
+            {
+                childContents.value = LuaDLL.lua_touserdata(L, -1).ToString();
+            }
+            else if (valueType == LuaTypes.LUA_TBOOLEAN)
+            {
+                childContents.value = LuaDLL.lua_toboolean(L, -1).ToString();
             }
         }
 

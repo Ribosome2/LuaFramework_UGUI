@@ -3,7 +3,15 @@ local gameObject;
 
 PromptPanel = {};
 local this = PromptPanel;
-myTable={11,"dd",seee={222,444,4.34}}
+myTable={11,"dd",
+	secondTable={
+		222,444,4.34,0.0005,
+		third={"some Lua ,dd",333}
+	},
+	other={
+		33,44,55
+	},
+}
 print('this is lua=============')
 --启动事件--
 function PromptPanel.Awake(obj)
