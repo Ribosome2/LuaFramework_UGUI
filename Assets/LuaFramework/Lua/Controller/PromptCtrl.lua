@@ -76,6 +76,10 @@ function PromptCtrl.OnClick(go)
 		this.TestSendSproto();
 	end
 	logWarn("OnClick---->>>"..go.name);
+
+    logWarn("Awake lua--1111->>"..gameObject.name);
+	print("myRable",myTable," ",myTable[1])
+	myTable[1]=myTable[1]+10
 end
 
 --测试发送SPROTO--

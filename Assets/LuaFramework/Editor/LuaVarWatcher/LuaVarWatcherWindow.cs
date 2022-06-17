@@ -19,19 +19,47 @@ namespace LuaVarWatcher
             GetWindow<LuaVarWatcherWindow>();
         }
 
+        void OnEnable()
+        {
+            EditorApplication.update += OnEditorUpdate;
+        }
+
+        void OnDisable()
+        {
+            EditorApplication.update -= OnEditorUpdate;
+        }
+
+
+
 
         private Dictionary<string, LuaNode> scanMap = new Dictionary<string, LuaNode>();
         private string mTargetTablePath = "myTable";
         LuaVarTreeView mLuaVarTreeView;
         private SearchField mSearchField;
         private MultiColumnHeader mMultiColumnHeader;
+        private bool mAutoRefresh;
+        private float lastScanTime;
+        private float scanInterval = 0.1f;
+
+        private void OnEditorUpdate()
+        {
+            if (mAutoRefresh && EditorApplication.timeSinceStartup - lastScanTime > scanInterval &&
+                LuaHandleInterface.GetLuaPtr() != IntPtr.Zero && !string.IsNullOrEmpty(mTargetTablePath))
+            {
+                ScanTargetTable(LuaHandleInterface.GetLuaPtr());
+            }
+        }
+
         void OnGUI()
         {
             var L = LuaHandleInterface.GetLuaPtr();
             if (L != IntPtr.Zero)
             {
                 GUILayout.Label("目标table路径：");
+                GUILayout.BeginHorizontal();
                 mTargetTablePath = EditorGUILayout.TextField("", mTargetTablePath);
+                mAutoRefresh=EditorGUILayout.Toggle("AutoRefresh", mAutoRefresh);
+                GUILayout.EndHorizontal();
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("扫描输入内容"))
                 {
@@ -67,6 +95,7 @@ namespace LuaVarWatcher
 
         private void ScanTargetTable(IntPtr L)
         {
+            var startTime = EditorApplication.timeSinceStartup;
             var oldTop = LuaDLL.lua_gettop(L);
             LuaDLL.lua_getglobal(L, mTargetTablePath);
             scanMap.Clear();
@@ -75,6 +104,13 @@ namespace LuaVarWatcher
             mLuaVarTreeView.luaNodeRoot = rootNode;
             mLuaVarTreeView.RootNodeName = mTargetTablePath;
             mLuaVarTreeView.Reload();
+
+            var scanTime = EditorApplication.timeSinceStartup-startTime;
+            if (scanTime > 0.5 && mAutoRefresh)
+            {
+                mAutoRefresh = false;
+                ShowNotification(new GUIContent("单次扫描太久，退出自动刷新"));
+            }
         }
 
         private void CheckInit()

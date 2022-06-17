@@ -3,14 +3,15 @@ local gameObject;
 
 PromptPanel = {};
 local this = PromptPanel;
-
+myTable={11,"dd",seee={222,444,4.34}}
+print('this is lua=============')
 --启动事件--
 function PromptPanel.Awake(obj)
 	gameObject = obj;
 	transform = obj.transform;
 
 	this.InitPanel();
-	logWarn("Awake lua--->>"..gameObject.name);
+
 end
 
 --初始化面板--
