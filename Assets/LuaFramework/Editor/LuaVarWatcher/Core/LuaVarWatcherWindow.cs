@@ -117,12 +117,13 @@ namespace LuaVarWatcher
                 var validPrefix = prefixes[0];
                 for (int i = 1; i < prefixes.Length; i++)
                 {
-                    if (!LuaDLL.lua_istable(L, -1))
-                    {
-                        Debug.LogError("不存在table:" + validPrefix + " top type " + LuaDLL.luaL_typename(L, -1));
-                    }
                     LuaDLL.lua_getfield(L, -1, prefixes[i]);
-                    validPrefix +="."+ prefixes[i];
+                    validPrefix += "." + prefixes[i];
+                    if (LuaDLL.lua_type(L, -1) == LuaTypes.LUA_TNIL)
+                    {
+                        Debug.LogError(validPrefix + "是不存在的Table " + LuaDLL.lua_type(L, -1));
+                        break;
+                    }
                 }
             }
         }
