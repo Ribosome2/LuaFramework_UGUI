@@ -41,6 +41,19 @@ namespace LuaVarWatcher
         private float lastScanTime;
         private float scanInterval = 0.1f;
 
+        [SerializeField] TreeViewState m_TreeViewState; // Serialized in the window layout file so it survives assembly reloading
+        [SerializeField] MultiColumnHeaderState m_MultiColumnHeaderState;
+        SearchField m_SearchField;
+        Rect multiColumnTreeViewRect
+        {
+            get { return new Rect(20, 30, position.width - 40, position.height - 60); }
+        }
+
+        Rect codeExecuteRect
+        {
+            get { return new Rect(position.width-300, 100, position.width - 40, position.height - 60); }
+        }
+
         private void OnEditorUpdate()
         {
             if (mAutoRefresh && EditorApplication.timeSinceStartup - lastScanTime > scanInterval &&
@@ -55,8 +68,8 @@ namespace LuaVarWatcher
             var L = LuaHandleInterface.GetLuaPtr();
             if (L != IntPtr.Zero)
             {
-                GUILayout.Label("目标table路径：");
                 GUILayout.BeginHorizontal();
+                GUILayout.Label("目标table：",GUILayout.Width(120));
                 mTargetTablePath = EditorGUILayout.TextField("", mTargetTablePath);
                 mAutoRefresh=EditorGUILayout.Toggle("AutoRefresh", mAutoRefresh);
                 GUILayout.EndHorizontal();
@@ -84,7 +97,9 @@ namespace LuaVarWatcher
 
             if (mLuaVarTreeView != null && mLuaVarTreeView.luaNodeRoot != null)
             {
-                mLuaVarTreeView.searchString = mSearchField.OnGUI(new Rect(0, 60, position.width, 30), mLuaVarTreeView.searchString);
+                var searchLabelRect = new Rect(0, 60, 80, 30);
+                GUI.Label(searchLabelRect, "搜索节点名：" );
+                mLuaVarTreeView.searchString = mSearchField.OnGUI(new Rect(searchLabelRect.width, searchLabelRect.y, position.width, 30), mLuaVarTreeView.searchString);
                 mLuaVarTreeView.OnGUI(new Rect(0, 100, position.width, position.height - 100));
             }
             else
@@ -172,13 +187,7 @@ namespace LuaVarWatcher
             }
         }
 
-        [SerializeField] TreeViewState m_TreeViewState; // Serialized in the window layout file so it survives assembly reloading
-        [SerializeField] MultiColumnHeaderState m_MultiColumnHeaderState;
-        SearchField m_SearchField;
-        Rect multiColumnTreeViewRect
-        {
-            get { return new Rect(20, 30, position.width - 40, position.height - 60); }
-        }
+
   
     }
 }

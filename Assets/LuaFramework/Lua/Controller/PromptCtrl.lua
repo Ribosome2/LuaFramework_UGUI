@@ -79,7 +79,7 @@ function PromptCtrl.OnClick(go)
 
     logWarn("Awake lua--1111->>"..gameObject.name);
 	print("myRable",myTable," ",myTable[1])
-	myTable[1]=myTable[1]+10
+	myTable.secondTable[1]=myTable.secondTable[1]+10
 end
 
 --测试发送SPROTO--
