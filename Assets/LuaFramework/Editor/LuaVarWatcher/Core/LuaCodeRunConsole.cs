@@ -16,10 +16,12 @@ namespace LuaVarWatcher
             GUILayout.BeginArea(drawArea);
             if (GUILayout.Button("Debug", GUILayout.Width(100)))
             {
+                
             }
             GUILayout.BeginHorizontal();
 
-            reloadPath = EditorGUILayout.TextField("重置路径：", reloadPath);
+            EditorGUILayout.LabelField("重置路径：", reloadPath,GUILayout.Width(70));
+            reloadPath = EditorGUILayout.TextField("", reloadPath);
 
             if (GUILayout.Button("Reload", GUILayout.Width(100)))
             {
@@ -29,7 +31,7 @@ namespace LuaVarWatcher
             GUILayout.EndHorizontal();
 
             GUILayout.Space(10);
-            if (GUILayout.Button("执行", GUILayout.Height(50)))
+            if (GUILayout.Button("执行", GUILayout.Height(35)))
             {
                 LuaDLL.luaL_dostring(L, executeCodeBlock);
             }

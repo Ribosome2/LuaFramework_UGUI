@@ -48,22 +48,12 @@ namespace LuaVarWatcher
         private LuaCodeRunConsole mCodeRunConsole=new LuaCodeRunConsole();
 
         private float luaVarWidth = 400;
-        Rect luaVarUiRect
-        {
-            get { return new Rect(0, 100, luaVarWidth, position.height - 100); }
-        }
+        WindowSplitterDrawer mSplitterDrawer =new WindowSplitterDrawer();
 
         Rect multiColumnTreeViewRect
         {
             get { return new Rect(20, 30, position.width - 40, position.height - 60); }
         }
-
-        Rect codeExecuteRect
-        {
-            get { return new Rect(luaVarUiRect.width+20, 100, position.width - luaVarWidth- 40, position.height - 60); }
-        }
-
-
 
         private void OnEditorUpdate()
         {
@@ -107,20 +97,21 @@ namespace LuaVarWatcher
                 GUILayout.EndHorizontal();
 
 
-                mCodeRunConsole.OnGUI(codeExecuteRect,L);
+                mCodeRunConsole.OnGUI(mSplitterDrawer.CodeExcuteRect,L);
+                mSplitterDrawer.SetOwnerWindow(this);
+                mSplitterDrawer.OnGUI();
             }
             else
             {
                 GUILayout.Label("Can't find luaManager");
             }
 
-
             if (mLuaVarTreeView != null && mLuaVarTreeView.luaNodeRoot != null)
             {
                 var searchLabelRect = new Rect(0, 60, 80, 30);
                 GUI.Label(searchLabelRect, "搜索节点名：" );
                 mLuaVarTreeView.searchString = mSearchField.OnGUI(new Rect(searchLabelRect.width, searchLabelRect.y, position.width, 30), mLuaVarTreeView.searchString);
-                mLuaVarTreeView.OnGUI(luaVarUiRect);
+                mLuaVarTreeView.OnGUI(mSplitterDrawer.TreeViewRect);
             }
             else
             {
