@@ -14,6 +14,9 @@ local panel;
 local prompt;
 local transform;
 local gameObject;
+local someLocalData ={
+    122,123
+}
 
 --构建函数--
 function PromptCtrl.New()

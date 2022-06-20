@@ -5,11 +5,12 @@ namespace LuaVarWatcher
 {
     public class LuaNodeItem
     {
-        public string keyType;
+        public LuaTypes keyType;
         public string key;
         public string valueType;
         public string value;
         public LuaTypes luaValueType;
+
         public string GetDisplayName()
         {
             if (luaValueType==LuaTypes.LUA_TTABLE)
@@ -21,7 +22,15 @@ namespace LuaVarWatcher
             }
             else
             {
-                return string.Format(" [{0}]:{1}", key, value);
+                if (keyType == LuaTypes.LUA_TSTRING)
+                {
+                    return string.Format("{0}:{1}", key, value);
+
+                }
+                else
+                {
+                    return string.Format(" [{0}]:{1}", key, value);
+                }
             }
         }
     };

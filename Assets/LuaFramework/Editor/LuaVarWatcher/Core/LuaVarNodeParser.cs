@@ -31,7 +31,6 @@ namespace LuaVarWatcher
             luaNode.content.value = tableAddress;
             luaNode.content.luaValueType = LuaTypes.LUA_TTABLE;
             scanMap[tableAddress] = luaNode;
-
             LuaDLL.lua_pushnil(L);
             while (LuaDLL.lua_next(L, -2) > 0)
             {
@@ -63,7 +62,6 @@ namespace LuaVarWatcher
             var valueTypeStr = LuaDLL.luaL_typename(L, -2);
             var valueType = LuaDLL.lua_type(L, -1);
             childContents.luaValueType = valueType;
-            childContents.keyType = keyTypeStr;
             childContents.valueType = valueTypeStr;
             luaNode.childContents.Add(childContents);
             if (valueType == LuaTypes.LUA_TNUMBER)
@@ -94,8 +92,9 @@ namespace LuaVarWatcher
         private static LuaNodeItem ParseKey(IntPtr L)
         {
             var keyType = LuaDLL.lua_type(L, -2);
-
+            
             LuaNodeItem childContents = new LuaNodeItem();
+            childContents.keyType = keyType;
             if (keyType == LuaTypes.LUA_TNUMBER)
             {
                 childContents.key = cleanDoubleToNumber(L, -2);
