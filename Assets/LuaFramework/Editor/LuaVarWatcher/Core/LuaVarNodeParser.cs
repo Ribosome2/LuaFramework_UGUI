@@ -109,5 +109,39 @@ namespace LuaVarWatcher
 
             return childContents;
         }
+
+        public static void PushTargetTableToStack(IntPtr L, string dataPath)
+        {
+            var prefixes = dataPath.Split('.');
+            if (prefixes.Length == 1)
+            {
+                LuaDLL.lua_getglobal(L, dataPath);
+                if (!LuaDLL.lua_istable(L, -1))
+                {
+                    Debug.LogError("不存在table " + dataPath);
+                }
+            }
+            else
+            {
+                LuaDLL.lua_getglobal(L, prefixes[0]);
+                if (!LuaDLL.lua_istable(L, -1))
+                {
+                    Debug.LogError("不存在table " + prefixes[0] + " top type " + LuaDLL.luaL_typename(L, -1));
+                    return;
+                }
+
+                var validPrefix = prefixes[0];
+                for (int i = 1; i < prefixes.Length; i++)
+                {
+                    LuaDLL.lua_getfield(L, -1, prefixes[i]);
+                    validPrefix += "." + prefixes[i];
+                    if (LuaDLL.lua_type(L, -1) == LuaTypes.LUA_TNIL)
+                    {
+                        Debug.LogError(validPrefix + "是不存在的Table " + LuaDLL.lua_type(L, -1));
+                        break;
+                    }
+                }
+            }
+        }
     }
 }

@@ -45,6 +45,14 @@ namespace LuaVarWatcher
         [SerializeField] MultiColumnHeaderState m_MultiColumnHeaderState;
         SearchField m_SearchField;
         private CommonDropDownList mCommonDropDownList;
+        private LuaCodeRunConsole mCodeRunConsole=new LuaCodeRunConsole();
+
+        private float luaVarWidth = 400;
+        Rect luaVarUiRect
+        {
+            get { return new Rect(0, 100, luaVarWidth, position.height - 100); }
+        }
+
         Rect multiColumnTreeViewRect
         {
             get { return new Rect(20, 30, position.width - 40, position.height - 60); }
@@ -52,8 +60,10 @@ namespace LuaVarWatcher
 
         Rect codeExecuteRect
         {
-            get { return new Rect(position.width-300, 100, position.width - 40, position.height - 60); }
+            get { return new Rect(luaVarUiRect.width+20, 100, position.width - luaVarWidth- 40, position.height - 60); }
         }
+
+
 
         private void OnEditorUpdate()
         {
@@ -95,6 +105,9 @@ namespace LuaVarWatcher
                     LuaDLL.luaL_dostring(L, mTargetTablePath);
                 }
                 GUILayout.EndHorizontal();
+
+
+                mCodeRunConsole.OnGUI(codeExecuteRect,L);
             }
             else
             {
@@ -107,7 +120,7 @@ namespace LuaVarWatcher
                 var searchLabelRect = new Rect(0, 60, 80, 30);
                 GUI.Label(searchLabelRect, "搜索节点名：" );
                 mLuaVarTreeView.searchString = mSearchField.OnGUI(new Rect(searchLabelRect.width, searchLabelRect.y, position.width, 30), mLuaVarTreeView.searchString);
-                mLuaVarTreeView.OnGUI(new Rect(0, 100, position.width, position.height - 100));
+                mLuaVarTreeView.OnGUI(luaVarUiRect);
             }
             else
             {
@@ -116,45 +129,13 @@ namespace LuaVarWatcher
         }
 
 
-        void PushTargetTableToStack(IntPtr L,string dataPath)
-        {
-            var prefixes = dataPath.Split('.');
-            if (prefixes.Length == 1)
-            {
-                LuaDLL.lua_getglobal(L, dataPath);
-                if (!LuaDLL.lua_istable(L, -1))
-                {
-                    Debug.LogError("不存在table " + dataPath);
-                }
-            }
-            else
-            {
-                LuaDLL.lua_getglobal(L, prefixes[0]);
-                if (!LuaDLL.lua_istable(L, -1))
-                {
-                    Debug.LogError("不存在table "+prefixes[0]+ " top type "+ LuaDLL.luaL_typename(L,-1));
-                    return;
-                }
 
-                var validPrefix = prefixes[0];
-                for (int i = 1; i < prefixes.Length; i++)
-                {
-                    LuaDLL.lua_getfield(L, -1, prefixes[i]);
-                    validPrefix += "." + prefixes[i];
-                    if (LuaDLL.lua_type(L, -1) == LuaTypes.LUA_TNIL)
-                    {
-                        Debug.LogError(validPrefix + "是不存在的Table " + LuaDLL.lua_type(L, -1));
-                        break;
-                    }
-                }
-            }
-        }
 
         private void ScanTargetTable(IntPtr L)
         {
             var startTime = EditorApplication.timeSinceStartup;
             var oldTop = LuaDLL.lua_gettop(L);
-            PushTargetTableToStack(L,mTargetTablePath);
+            LuaVarNodeParser.PushTargetTableToStack(L,mTargetTablePath);
             scanMap.Clear();
             var rootNode = LuaVarNodeParser.ParseLuaTable(L, scanMap);
             LuaDLL.lua_settop(L, oldTop);
