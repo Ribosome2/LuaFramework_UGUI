@@ -44,6 +44,7 @@ namespace LuaVarWatcher
         [SerializeField] TreeViewState m_TreeViewState; // Serialized in the window layout file so it survives assembly reloading
         [SerializeField] MultiColumnHeaderState m_MultiColumnHeaderState;
         SearchField m_SearchField;
+        private CommonDropDownList mCommonDropDownList;
         Rect multiColumnTreeViewRect
         {
             get { return new Rect(20, 30, position.width - 40, position.height - 60); }
@@ -69,9 +70,15 @@ namespace LuaVarWatcher
             if (L != IntPtr.Zero)
             {
                 GUILayout.BeginHorizontal();
-                GUILayout.Label("目标table：",GUILayout.Width(120));
+                GUILayout.Label("目标table：",GUILayout.Width(80));
+
                 mTargetTablePath = EditorGUILayout.TextField("", mTargetTablePath);
-                mAutoRefresh=EditorGUILayout.Toggle("AutoRefresh", mAutoRefresh);
+                if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30)))
+                {
+                    mCommonDropDownList= new CommonDropDownList("LuaVarCommonTableConfig.json");
+                    mCommonDropDownList.ShowDropDown(delegate(object data) { mTargetTablePath = (string)data; });
+                }
+                mAutoRefresh =EditorGUILayout.Toggle("AutoRefresh", mAutoRefresh);
                 GUILayout.EndHorizontal();
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("扫描输入内容"))
@@ -83,7 +90,7 @@ namespace LuaVarWatcher
                     mTargetTablePath = "_G";
                     ScanTargetTable(L);
                 }
-                if(GUILayout.Button("执行输入指令"))
+                if (GUILayout.Button("执行输入指令"))
                 {
                     LuaDLL.luaL_dostring(L, mTargetTablePath);
                 }
