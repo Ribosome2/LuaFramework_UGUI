@@ -21,7 +21,7 @@ namespace LuaVarWatcher
             }
 
             var ptr = LuaDLL.lua_topointer(L, -1);
-            var tableAddress = ptr.ToString();
+            var tableAddress = ptr.ToString("X8");
             if (scanMap.ContainsKey(tableAddress))
             {
                 return null;
@@ -29,6 +29,7 @@ namespace LuaVarWatcher
 
             LuaNode luaNode = new LuaNode();
             luaNode.content.value = tableAddress;
+            luaNode.content.luaValueType = LuaTypes.LUA_TTABLE;
             scanMap[tableAddress] = luaNode;
 
             LuaDLL.lua_pushnil(L);
@@ -42,7 +43,7 @@ namespace LuaVarWatcher
                     if (childNode != null)
                     {
                         childNode.content.key = childContents.key;
-                        childNode.content.luaValueType = childContents.luaValueType;
+                        childNode.content.luaValueType = LuaTypes.LUA_TTABLE;
                         luaNode.childNodes.Add(childNode);
                     }
                 }

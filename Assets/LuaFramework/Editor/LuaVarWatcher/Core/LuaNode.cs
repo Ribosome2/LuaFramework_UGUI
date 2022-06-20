@@ -14,7 +14,7 @@ namespace LuaVarWatcher
         {
             if (luaValueType==LuaTypes.LUA_TTABLE)
             {
-                return string.Format("{0}:table: &{1}", key, value);
+                return string.Format("{0}:table: 0x{1}", key, value);
             }else if (luaValueType == LuaTypes.LUA_TFUNCTION)
             {
                 return string.Format("{0}:function: &{1}", key, value);

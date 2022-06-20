@@ -49,7 +49,7 @@ namespace LuaVarWatcher
             root.AddChild(firstShowNode);
             if (luaNodeRoot != null)
             {
-                firstShowNode.displayName = firstShowNode.displayName + " &" + luaNodeRoot.content.value;
+                firstShowNode.displayName = firstShowNode.displayName + " :0x" + luaNodeRoot.content.value;
                 AddVarNode(firstShowNode, luaNodeRoot);
             }
 
@@ -100,6 +100,16 @@ namespace LuaVarWatcher
                     break;
                 }
             }
+        }
+
+        protected override bool CanRename(TreeViewItem item)
+        {
+            return true;
+        }
+
+        protected override void RenameEnded(RenameEndedArgs args)
+        {
+            base.RenameEnded(args);
         }
     }
 }
