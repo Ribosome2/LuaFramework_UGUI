@@ -14,6 +14,7 @@ namespace LuaVarWatcher
 
         private LRUContentRecorder contentRecorder;
         private LRUContentRecorder reloadRecorder;
+        private GUIContent debugContent;
         public LuaCodeRunConsole()
         {
             contentRecorder = new LRUContentRecorder("LuaDebugCache/RecentExecuteCode.json");
@@ -34,7 +35,13 @@ namespace LuaVarWatcher
         public void OnGUI(Rect drawArea,IntPtr L )
         {
             GUILayout.BeginArea(drawArea);
-            if (GUILayout.Button("Debugger", GUILayout.Width(100)))
+            if (debugContent == null)
+            {
+                debugContent = new GUIContent();
+                debugContent.text = "Debugger";
+                debugContent.image = Resources.Load<Texture2D>("attachDebugIcon");
+            }
+            if (GUILayout.Button(debugContent, GUILayout.Width(100),GUILayout.Height(30)))
             {
                 LuaHandleInterface.ConnectDebugger();
             }
