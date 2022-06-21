@@ -34,5 +34,10 @@ namespace LuaVarWatcher
         {
             //replace with implementation in your project
         }
+
+        public static void ConnectDebugger()
+        {
+
+        }
     }
 }
