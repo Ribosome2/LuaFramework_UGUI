@@ -41,11 +41,17 @@ namespace LuaVarWatcher
             GUILayout.BeginHorizontal();
 
             EditorGUILayout.LabelField("重置路径：", reloadPath,GUILayout.Width(70));
+            if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30), GUILayout.Height(35)))
+            {
+                ShowCodeExecuteDropDown(reloadRecorder, delegate (object content) { reloadPath = content as string; });
+            }
+
             reloadPath = EditorGUILayout.TextField("", reloadPath);
 
             if (GUILayout.Button("Reload", GUILayout.Width(100)))
             {
                 LuaHandleInterface.ReloadLuaFile(reloadPath);
+                reloadRecorder.AddUseRecord(reloadPath);
             }
 
             GUILayout.EndHorizontal();
@@ -54,7 +60,7 @@ namespace LuaVarWatcher
             GUILayout.BeginHorizontal();
             if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30), GUILayout.Height(35)))
             {
-                ShowCodeExecuteDropDown(delegate(object content) { executeCodeBlock = content as string; });
+                ShowCodeExecuteDropDown(contentRecorder,delegate(object content) { executeCodeBlock = content as string; });
             }
           
             if (GUILayout.Button("执行", GUILayout.Height(35)))
@@ -79,14 +85,15 @@ namespace LuaVarWatcher
         }
 
 
-        public void ShowCodeExecuteDropDown(GenericMenu.MenuFunction2 func)
+        public void ShowCodeExecuteDropDown(LRUContentRecorder recorder,GenericMenu.MenuFunction2 func )
         {
             GenericMenu menu = new GenericMenu();
-            foreach (var content in contentRecorder.GetContentList())
+            foreach (var content in recorder.GetContentList())
             {
                 menu.AddItem(new GUIContent(content), false, func, content);
             }
             menu.ShowAsContext();
         }
+
     }
 }
