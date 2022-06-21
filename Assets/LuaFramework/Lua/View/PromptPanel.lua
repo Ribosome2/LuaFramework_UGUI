@@ -13,6 +13,7 @@ myTable={11,"dd",
 	},
 }
 print('this is lua=============')
+local myLocalData = {1111,23123}
 --启动事件--
 function PromptPanel.Awake(obj)
 	gameObject = obj;

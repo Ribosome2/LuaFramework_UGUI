@@ -19,16 +19,24 @@ namespace LuaVarWatcher
             GetWindow<LuaVarWatcherWindow>();
         }
 
+        private LRUContentRecorder recentUseTableRecorder;
+
+
+
         void OnEnable()
         {
             EditorApplication.update += OnEditorUpdate;
+            if (recentUseTableRecorder == null)
+            {
+                recentUseTableRecorder = new LRUContentRecorder("LuaDebugCache/RecentCheckTable.json");
+            }
         }
 
         void OnDisable()
         {
             EditorApplication.update -= OnEditorUpdate;
         }
-
+        
 
 
 
@@ -71,7 +79,10 @@ namespace LuaVarWatcher
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("目标table：",GUILayout.Width(80));
-
+                if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30), GUILayout.Height(35)))
+                {
+                    ShowCodeExecuteDropDown(recentUseTableRecorder, delegate (object content) { mTargetTablePath = content as string; });
+                }
                 mTargetTablePath = EditorGUILayout.TextField("", mTargetTablePath);
                 if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30)))
                 {
@@ -90,10 +101,7 @@ namespace LuaVarWatcher
                     mTargetTablePath = "_G";
                     ScanTargetTable(L);
                 }
-                if (GUILayout.Button("执行输入指令"))
-                {
-                    LuaDLL.luaL_dostring(L, mTargetTablePath);
-                }
+               
                 GUILayout.EndHorizontal();
 
 
@@ -140,6 +148,10 @@ namespace LuaVarWatcher
                 mAutoRefresh = false;
                 ShowNotification(new GUIContent("单次扫描太久，退出自动刷新"));
             }
+            if (rootNode != null)
+            {
+                recentUseTableRecorder.AddUseRecord(mTargetTablePath);
+            }
         }
 
         private void CheckInit()
@@ -166,7 +178,15 @@ namespace LuaVarWatcher
             }
         }
 
+        public void ShowCodeExecuteDropDown(LRUContentRecorder recorder, GenericMenu.MenuFunction2 func)
+        {
+            GenericMenu menu = new GenericMenu();
+            foreach (var content in recorder.GetContentList())
+            {
+                menu.AddItem(new GUIContent(content), false, func, content);
+            }
+            menu.ShowAsContext();
+        }
 
-  
     }
 }
