@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using LuaInterface;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
@@ -9,6 +10,7 @@ namespace LuaVarWatcher
     {
         public LuaNode luaNodeRoot;
         public string RootNodeName;
+        public bool IgnoreFunction=true;
 
         public LuaVarTreeView(TreeViewState state) : base(state)
         {
@@ -24,6 +26,10 @@ namespace LuaVarWatcher
         {
             foreach (var childContent in node.childContents)
             {
+                if (IgnoreFunction && childContent.luaValueType == LuaTypes.LUA_TFUNCTION)
+                {
+                    continue;
+                }
                 var childContentItem =
                     new LuaVarTreeViewItem(ID++, parentItem.depth + 1, childContent.GetDisplayName());
                 childContentItem.luaData = childContent;

@@ -58,7 +58,6 @@ namespace LuaVarWatcher
 
         private static void ParseNoneTableValue(IntPtr L, Dictionary<string, LuaNode> scanMap, LuaNodeItem childContents, LuaNode luaNode)
         {
-            var keyTypeStr = LuaDLL.luaL_typename(L, -1);
             var valueTypeStr = LuaDLL.luaL_typename(L, -2);
             var valueType = LuaDLL.lua_type(L, -1);
             childContents.luaValueType = valueType;

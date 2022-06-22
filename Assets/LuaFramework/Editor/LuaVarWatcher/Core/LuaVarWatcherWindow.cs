@@ -118,7 +118,15 @@ namespace LuaVarWatcher
             {
                 var searchLabelRect = new Rect(0, 60, 80, 30);
                 GUI.Label(searchLabelRect, "搜索节点名：" );
-                mLuaVarTreeView.searchString = mSearchField.OnGUI(new Rect(searchLabelRect.width, searchLabelRect.y, position.width, 30), mLuaVarTreeView.searchString);
+                float toggleWidth = 200;
+                var searchRect = new Rect(searchLabelRect.width, searchLabelRect.y, 400, 30);
+                mLuaVarTreeView.searchString = mSearchField.OnGUI(searchRect, mLuaVarTreeView.searchString);
+                var toggle = GUI.Toggle(new Rect( searchRect.xMax+20,searchRect.y, toggleWidth, searchRect.height), mLuaVarTreeView.IgnoreFunction, new GUIContent("忽略函数"));
+                if (toggle != mLuaVarTreeView.IgnoreFunction)
+                { 
+                    mLuaVarTreeView.IgnoreFunction = toggle;
+                    mLuaVarTreeView.Reload();
+                }
                 mLuaVarTreeView.OnGUI(mSplitterDrawer.TreeViewRect);
             }
             else
