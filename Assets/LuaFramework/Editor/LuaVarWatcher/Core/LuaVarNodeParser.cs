@@ -76,11 +76,11 @@ namespace LuaVarWatcher
                 childContents.value = LuaDLL.lua_tostring(L, -1);
             }else if (valueType == LuaTypes.LUA_TFUNCTION)
             {
-                childContents.value = LuaDLL.lua_tocfunction(L, -1).ToString();
+                childContents.value = LuaDLL.lua_tocfunction(L, -1).ToString("X8");
             }
             else if (valueType == LuaTypes.LUA_TUSERDATA)
             {
-                childContents.value = LuaDLL.lua_touserdata(L, -1).ToString();
+                childContents.value = LuaDLL.lua_touserdata(L, -1).ToString("X8");
             }
             else if (valueType == LuaTypes.LUA_TBOOLEAN)
             {

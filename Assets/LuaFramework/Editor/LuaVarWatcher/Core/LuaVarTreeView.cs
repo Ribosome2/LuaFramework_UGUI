@@ -62,12 +62,24 @@ namespace LuaVarWatcher
             return root;
         }
 
+
+        void ExpandAllParent(int id)
+        {
+            var item = FindItem(id,rootItem);
+            while (item!=null && item.parent!=null)
+            {
+                this.SetExpanded(item.parent.id, true);
+                item = item.parent;
+            }
+        }
+
         protected override void DoubleClickedItem(int id)
         {
             base.DoubleClickedItem(id);
             searchString = "";
             SetSelection(new List<int>() {id});
-            this.SetExpandedRecursive(id, true);
+            this.SetExpanded(id, true);
+            ExpandAllParent(id);
             SetFocusAndEnsureSelectedItem();
         }
 
