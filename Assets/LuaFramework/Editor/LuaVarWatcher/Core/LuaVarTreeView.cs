@@ -11,6 +11,28 @@ namespace LuaVarWatcher
         public LuaNode luaNodeRoot;
         public string RootNodeName;
         public bool IgnoreFunction=true;
+        int ID = 0;
+
+        public string GetSingleSelectItemPath()
+        {
+            if (this.state.selectedIDs.Count == 1)
+            {
+
+                var id = this.state.selectedIDs[0];
+                var selectedItem = FindItem(id, rootItem);
+                if (selectedItem != null)
+                {
+                    var path = "";
+                    while (selectedItem!=null && selectedItem is LuaVarTreeViewItem )
+                    {
+                        selectedItem = selectedItem.parent;
+                    }
+                    
+                }
+            }
+
+            return string.Empty;
+        }
 
         public LuaVarTreeView(TreeViewState state) : base(state)
         {
@@ -20,7 +42,7 @@ namespace LuaVarWatcher
         {
         }
 
-        int ID = 0;
+
 
         void AddVarNode(TreeViewItem parentItem, LuaNode node)
         {

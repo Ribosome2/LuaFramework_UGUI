@@ -81,7 +81,7 @@ namespace LuaVarWatcher
                 GUILayout.Label("目标table：",GUILayout.Width(80));
                 if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30), GUILayout.Height(35)))
                 {
-                    ShowCodeExecuteDropDown(recentUseTableRecorder, delegate (object content) { mTargetTablePath = content as string; });
+                    recentUseTableRecorder.ShowCodeExecuteDropDown( delegate (object content) { mTargetTablePath = content as string; },this);
                 }
                 mTargetTablePath = EditorGUILayout.TextField("", mTargetTablePath);
                 if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30)))
@@ -128,6 +128,7 @@ namespace LuaVarWatcher
                     mLuaVarTreeView.Reload();
                 }
                 mLuaVarTreeView.OnGUI(mSplitterDrawer.TreeViewRect);
+
             }
             else
             {
@@ -186,15 +187,7 @@ namespace LuaVarWatcher
             }
         }
 
-        public void ShowCodeExecuteDropDown(LRUContentRecorder recorder, GenericMenu.MenuFunction2 func)
-        {
-            GenericMenu menu = new GenericMenu();
-            foreach (var content in recorder.GetContentList())
-            {
-                menu.AddItem(new GUIContent(content), false, func, content);
-            }
-            menu.ShowAsContext();
-        }
+
 
     }
 }

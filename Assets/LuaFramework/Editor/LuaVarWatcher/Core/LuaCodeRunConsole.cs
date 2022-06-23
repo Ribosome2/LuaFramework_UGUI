@@ -50,7 +50,7 @@ namespace LuaVarWatcher
             EditorGUILayout.LabelField("重置路径：", reloadPath,GUILayout.Width(70));
             if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30), GUILayout.Height(35)))
             {
-                ShowCodeExecuteDropDown(reloadRecorder, delegate (object content) { reloadPath = content as string; });
+                reloadRecorder.ShowCodeExecuteDropDown( delegate (object content) { reloadPath = content as string; });
             }
 
             reloadPath = EditorGUILayout.TextField("", reloadPath);
@@ -67,7 +67,7 @@ namespace LuaVarWatcher
             GUILayout.BeginHorizontal();
             if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30), GUILayout.Height(35)))
             {
-                ShowCodeExecuteDropDown(contentRecorder,delegate(object content) { executeCodeBlock = content as string; });
+                contentRecorder.ShowCodeExecuteDropDown(delegate(object content) { executeCodeBlock = content as string; });
             }
           
             if (GUILayout.Button("执行", GUILayout.Height(35)))
@@ -79,7 +79,7 @@ namespace LuaVarWatcher
                 }
                 else
                 {
-                    Debug.LogError("执行错误 " +executeCodeBlock);
+                    Debug.LogError("执行错误: " + LuaDLL.lua_tostring(L,-1));
                     LuaDLL.lua_settop(L,oldTop);
                 }
             }
@@ -88,19 +88,6 @@ namespace LuaVarWatcher
             executeCodeBlock = EditorGUILayout.TextArea(executeCodeBlock, GUILayout.Height(drawArea.height - 130));
             EditorGUILayout.EndScrollView();
             GUILayout.EndArea();
-
         }
-
-
-        public void ShowCodeExecuteDropDown(LRUContentRecorder recorder,GenericMenu.MenuFunction2 func )
-        {
-            GenericMenu menu = new GenericMenu();
-            foreach (var content in recorder.GetContentList())
-            {
-                menu.AddItem(new GUIContent(content), false, func, content);
-            }
-            menu.ShowAsContext();
-        }
-
     }
 }

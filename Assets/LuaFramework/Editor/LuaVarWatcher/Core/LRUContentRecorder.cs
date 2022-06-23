@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 namespace LuaVarWatcher
@@ -59,6 +60,28 @@ namespace LuaVarWatcher
                 if (dirPath != null) Directory.CreateDirectory(dirPath);
             }
             File.WriteAllText(mConfigPath,JsonUtility.ToJson(mConfig));
+        }
+
+        public void ShowCodeExecuteDropDown(GenericMenu.MenuFunction2 func,EditorWindow window=null)
+        {
+            if (mConfig.ContentList==null || mConfig.ContentList.Count == 0)
+            {
+                if (window!=null)
+                {
+                    window.ShowNotification(new GUIContent("暂无记录"));
+                }
+                else
+                {
+                    Debug.Log("暂无最近记录");
+                }
+                return;
+            }
+            GenericMenu menu = new GenericMenu();
+            foreach (var content in GetContentList())
+            {
+                menu.AddItem(new GUIContent(content), false, func, content);
+            }
+            menu.ShowAsContext();
         }
     }
 }
