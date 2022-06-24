@@ -12,7 +12,7 @@ namespace LuaVarWatcher
         public string RootNodeName;
         public bool IgnoreFunction = true;
         int ID = 0;
-        Dictionary<LuaNode, bool> mUniqueNodeMap = new Dictionary<LuaNode, bool>();
+        Dictionary<LuaNode, int> mUniqueNodeMap = new Dictionary<LuaNode, int>();
 
         public string GetSingleSelectItemPath()
         {
@@ -33,21 +33,20 @@ namespace LuaVarWatcher
             return string.Empty;
         }
 
+        private GUIContent cycleRefJumpBtnContent;
         public LuaVarTreeView(TreeViewState state) : base(state)
         {
+           
         }
 
         public LuaVarTreeView(TreeViewState state, MultiColumnHeader multiColumnHeader) : base(state, multiColumnHeader)
         {
+            cycleRefJumpBtnContent = new GUIContent(Resources.Load<Texture2D>("theSnakeCycle"));
         }
 
 
         void AddVarNode(TreeViewItem parentItem, LuaNode node)
         {
-//            if (parentItem.depth > 15)
-//            {
-//                return;
-//            }
             foreach (var childContent in node.childContents)
             {
                 if (IgnoreFunction && childContent.luaValueType == LuaTypes.LUA_TFUNCTION)
@@ -60,7 +59,7 @@ namespace LuaVarWatcher
                 childContentItem.luaData = childContent;
                 parentItem.AddChild(childContentItem);
             }
-
+            mUniqueNodeMap[node] = parentItem.id;
             foreach (var childNode in node.childNodes)
             {
                 if (mUniqueNodeMap.ContainsKey(childNode))
@@ -77,8 +76,9 @@ namespace LuaVarWatcher
                         new LuaVarTreeViewItem(ID++, parentItem.depth + 1, childNode.content.GetDisplayName());
                     childContentItem.luaData = childNode.content;
                     parentItem.AddChild(childContentItem);
+                    mUniqueNodeMap[childNode] = childContentItem.id;
                     AddVarNode(childContentItem, childNode);
-                    mUniqueNodeMap[node] = true;
+
                 }
             }
         }
@@ -147,7 +147,15 @@ namespace LuaVarWatcher
                     cellRect.x += GetContentIndent(item);
                     if (item.cycleRefNode != null)
                     {
+                        var jumpBtnRect = new Rect(cellRect.x, cellRect.y, 40, cellRect.height);
+                        if (GUI.Button(jumpBtnRect, cycleRefJumpBtnContent))
+                        {
+                            DoubleClickedItem(mUniqueNodeMap[item.cycleRefNode]);
+                        }
+
+                        cellRect.x += jumpBtnRect.width;
                         GUI.Label(cellRect, "循环引用table:x0"+item.cycleRefNode.content.value.ToString());
+                       
                     }
                     else
                     {
