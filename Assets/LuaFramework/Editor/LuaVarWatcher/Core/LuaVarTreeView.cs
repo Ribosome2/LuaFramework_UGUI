@@ -10,24 +10,23 @@ namespace LuaVarWatcher
     {
         public LuaNode luaNodeRoot;
         public string RootNodeName;
-        public bool IgnoreFunction=true;
+        public bool IgnoreFunction = true;
         int ID = 0;
+        Dictionary<LuaNode, bool> mUniqueNodeMap = new Dictionary<LuaNode, bool>();
 
         public string GetSingleSelectItemPath()
         {
             if (this.state.selectedIDs.Count == 1)
             {
-
                 var id = this.state.selectedIDs[0];
                 var selectedItem = FindItem(id, rootItem);
                 if (selectedItem != null)
                 {
                     var path = "";
-                    while (selectedItem!=null && selectedItem is LuaVarTreeViewItem )
+                    while (selectedItem != null && selectedItem is LuaVarTreeViewItem)
                     {
                         selectedItem = selectedItem.parent;
                     }
-                    
                 }
             }
 
@@ -43,15 +42,19 @@ namespace LuaVarWatcher
         }
 
 
-
         void AddVarNode(TreeViewItem parentItem, LuaNode node)
         {
+//            if (parentItem.depth > 15)
+//            {
+//                return;
+//            }
             foreach (var childContent in node.childContents)
             {
                 if (IgnoreFunction && childContent.luaValueType == LuaTypes.LUA_TFUNCTION)
                 {
                     continue;
                 }
+
                 var childContentItem =
                     new LuaVarTreeViewItem(ID++, parentItem.depth + 1, childContent.GetDisplayName());
                 childContentItem.luaData = childContent;
@@ -60,11 +63,23 @@ namespace LuaVarWatcher
 
             foreach (var childNode in node.childNodes)
             {
-                var childContentItem =
-                    new LuaVarTreeViewItem(ID++, parentItem.depth + 1, childNode.content.GetDisplayName());
-                childContentItem.luaData = childNode.content;
-                parentItem.AddChild(childContentItem);
-                AddVarNode(childContentItem, childNode);
+                if (mUniqueNodeMap.ContainsKey(childNode))
+                {
+                    var childContentItem =
+                        new LuaVarTreeViewItem(ID++, parentItem.depth + 1, "ref table" + childNode.content.value);
+                    childContentItem.luaData = childNode.content;
+                    childContentItem.cycleRefNode = childNode;
+                    parentItem.AddChild(childContentItem);
+                }
+                else
+                {
+                    var childContentItem =
+                        new LuaVarTreeViewItem(ID++, parentItem.depth + 1, childNode.content.GetDisplayName());
+                    childContentItem.luaData = childNode.content;
+                    parentItem.AddChild(childContentItem);
+                    AddVarNode(childContentItem, childNode);
+                    mUniqueNodeMap[node] = true;
+                }
             }
         }
 
@@ -73,7 +88,7 @@ namespace LuaVarWatcher
             TreeViewItem root = new TreeViewItem(-1, -1, "VarNodeWatcher:");
             ID = 0;
             var firstShowNode = new TreeViewItem(ID++, 0, RootNodeName);
-            SetExpanded(firstShowNode.id,true);
+            SetExpanded(firstShowNode.id, true);
             root.AddChild(firstShowNode);
             if (luaNodeRoot != null)
             {
@@ -87,8 +102,8 @@ namespace LuaVarWatcher
 
         void ExpandAllParent(int id)
         {
-            var item = FindItem(id,rootItem);
-            while (item!=null && item.parent!=null)
+            var item = FindItem(id, rootItem);
+            while (item != null && item.parent != null)
             {
                 this.SetExpanded(item.parent.id, true);
                 item = item.parent;
@@ -107,7 +122,7 @@ namespace LuaVarWatcher
 
         protected override void RowGUI(RowGUIArgs args)
         {
-            var item =  args.item as LuaVarTreeViewItem;
+            var item = args.item as LuaVarTreeViewItem;
             if (item != null)
             {
                 for (int i = 0; i < args.GetNumVisibleColumns(); ++i)
@@ -129,14 +144,21 @@ namespace LuaVarWatcher
             {
                 case LuaVarColumns.VarName:
                 {
-
                     cellRect.x += GetContentIndent(item);
-                    GUI.Label(cellRect, item.luaData.GetDisplayName().ToString());
+                    if (item.cycleRefNode != null)
+                    {
+                        GUI.Label(cellRect, "循环引用table:x0"+item.cycleRefNode.content.value.ToString());
+                    }
+                    else
+                    {
+                        GUI.Label(cellRect, item.luaData.GetDisplayName().ToString());
+                    }
+
                     break;
                 }
                 case LuaVarColumns.VarType:
                 {
-                    GUI.Label(cellRect,item.luaData.luaValueType.ToString());
+                    GUI.Label(cellRect, item.luaData.luaValueType.ToString());
                     break;
                 }
             }

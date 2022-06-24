@@ -24,7 +24,7 @@ namespace LuaVarWatcher
             var tableAddress = ptr.ToString("X8");
             if (scanMap.ContainsKey(tableAddress))
             {
-                return null;
+                return scanMap[tableAddress];
             }
 
             LuaNode luaNode = new LuaNode();
@@ -44,6 +44,10 @@ namespace LuaVarWatcher
                         childNode.content.key = childContents.key;
                         childNode.content.luaValueType = LuaTypes.LUA_TTABLE;
                         luaNode.childNodes.Add(childNode);
+                    }
+                    else
+                    {
+                        Debug.Log("Got Null "+childContents);
                     }
                 }
                 else

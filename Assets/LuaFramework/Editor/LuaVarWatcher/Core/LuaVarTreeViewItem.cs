@@ -12,5 +12,7 @@ namespace LuaVarWatcher
         }
 
         public LuaNodeItem luaData;
+
+        public LuaNode cycleRefNode;//循环引用的几点会赋值
     }
 }

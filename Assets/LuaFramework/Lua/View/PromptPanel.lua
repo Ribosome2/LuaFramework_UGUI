@@ -13,8 +13,9 @@ myTable={11,"dd",
 	},
 }
 print('this is lua=============')
-myTable.PanelInstance =PromptCtrl
+myTable.PanelInstance =PromptPanel
 local myLocalData = {1111,23123}
+PromptPanel.myDataRef = myTable
 --启动事件--
 function PromptPanel.Awake(obj)
 	gameObject = obj;
