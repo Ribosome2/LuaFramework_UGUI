@@ -42,6 +42,8 @@ namespace LuaVarWatcher
         public LuaVarTreeView(TreeViewState state, MultiColumnHeader multiColumnHeader) : base(state, multiColumnHeader)
         {
             cycleRefJumpBtnContent = new GUIContent(Resources.Load<Texture2D>("theSnakeCycle"));
+            cycleRefJumpBtnContent.text = "↑";
+            cycleRefJumpBtnContent.tooltip = "跳转到引用节点";
         }
 
 
