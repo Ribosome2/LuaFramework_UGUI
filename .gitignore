@@ -11,3 +11,6 @@ Assets/Resources
 Assets/Resources.meta
 Assets/LuaFramework/.idea/
 LuaDebugCache/
+SocketTest_Data/
+*.apk
+SocketTest.exe

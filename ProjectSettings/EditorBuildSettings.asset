@@ -6,4 +6,5 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/LuaFramework/Scenes/main.unity
+    path: Assets/SocketTest.unity
+    guid: c3f30b92fd23e3e4992ddccfa701ac1a
