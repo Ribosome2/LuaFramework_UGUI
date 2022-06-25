@@ -93,7 +93,7 @@ namespace KyleDarkMagic
                 if (curSocket == null)
                 {
                     var tempSocket = new UDPSocket();
-                    tempSocket.Server("127.0.0.1", port, OnMsgCalllBack);
+                    tempSocket.Server(ServerStartIp, port, OnMsgCalllBack);
                     curSocket = tempSocket;
                     Debug.Log("Magic server start !");
                 }
