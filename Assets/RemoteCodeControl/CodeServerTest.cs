@@ -93,6 +93,9 @@ namespace KyleDarkMagic
                 if (curSocket == null)
                 {
                     var tempSocket = new UDPSocket();
+                    //启动的是192.x.x.x格式的IP ,而且防火墙要关闭或者指定允许Unity防火墙通信，就能同一个局域网的在手机和电脑通信了
+                    //但是怎么指定允许手机通过防火墙？
+                    //如果是打出来的exe，启动服务的时候windows防火墙就会提示是否允许通信，但是安卓应用怎么指定？
                     tempSocket.Server(ServerStartIp, port, OnMsgCalllBack);
                     curSocket = tempSocket;
                     Debug.Log("Magic server start !");
