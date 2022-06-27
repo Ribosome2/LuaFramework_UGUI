@@ -12,20 +12,15 @@ public class TCPTestClient : MonoBehaviour
 	private TcpClient socketConnection;
 	private Thread clientReceiveThread;
 	#endregion
-	// Use this for initialization 	
-	void Start()
-	{
-		
-	}
-	// Update is called once per frame
-	void Update()
-	{
 
-	}
+    private int port = 8052;
+    public string IP = "127.0.0.1";
 
 
-    void OnGUI()
+    private string content="";
+	void OnGUI()
     {
+        IP = GUILayout.TextField(IP);
         if (GUILayout.Button("Connect To Sever"))
         {
             ConnectToTcpServer();
@@ -35,6 +30,7 @@ public class TCPTestClient : MonoBehaviour
         {
             SendMessage("DDD");
         }
+		GUILayout.Label(content);
 	}
 	/// <summary> 	
 	/// Setup socket connection. 	
@@ -59,7 +55,7 @@ public class TCPTestClient : MonoBehaviour
 	{
 		try
 		{
-			socketConnection = new TcpClient("localhost", 8052);
+			socketConnection = new TcpClient(IP, port);
 			Byte[] bytes = new Byte[1024];
 			while (true)
 			{
@@ -74,6 +70,7 @@ public class TCPTestClient : MonoBehaviour
 						Array.Copy(bytes, 0, incommingData, 0, length);
 						// Convert byte array to string message. 						
 						string serverMessage = Encoding.ASCII.GetString(incommingData);
+                        content += serverMessage;
 						Debug.Log("server message received as: " + serverMessage);
 					}
 				}
