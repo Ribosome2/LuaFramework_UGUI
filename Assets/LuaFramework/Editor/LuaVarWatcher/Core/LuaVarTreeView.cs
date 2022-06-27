@@ -156,7 +156,7 @@ namespace LuaVarWatcher
                         }
 
                         cellRect.x += jumpBtnRect.width;
-                        GUI.Label(cellRect, "循环引用table:x0"+item.cycleRefNode.content.value.ToString());
+                        GUI.Label(cellRect, item.luaData.GetDisplayName().ToString());
                        
                     }
                     else
