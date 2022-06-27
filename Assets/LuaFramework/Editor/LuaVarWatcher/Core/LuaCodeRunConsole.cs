@@ -15,6 +15,7 @@ namespace LuaVarWatcher
         private LRUContentRecorder contentRecorder;
         private LRUContentRecorder reloadRecorder;
         private GUIContent debugContent;
+        private TCPCodeServer mCodeSrver =new TCPCodeServer();
         public LuaCodeRunConsole()
         {
             contentRecorder = new LRUContentRecorder("LuaDebugCache/RecentExecuteCode.json");
@@ -85,8 +86,32 @@ namespace LuaVarWatcher
             }
             GUILayout.EndHorizontal();
             scroll = EditorGUILayout.BeginScrollView(scroll);
-            executeCodeBlock = EditorGUILayout.TextArea(executeCodeBlock, GUILayout.Height(drawArea.height - 130));
+
+            executeCodeBlock = EditorGUILayout.TextArea(executeCodeBlock, GUILayout.Height(drawArea.height - 230));
             EditorGUILayout.EndScrollView();
+
+            GUILayout.BeginHorizontal();
+            if (mCodeSrver.IsServerStarted)
+            {
+                if (GUILayout.Button("StartServer"))
+                {
+                    mCodeSrver.Start();
+                }
+            }
+            else
+            {
+                if (GUILayout.Button("StartServer"))
+                {
+                    mCodeSrver.Start();
+                }
+            }
+           
+            if (GUILayout.Button("SendMsg"))
+            {
+                mCodeSrver.SendMessage(executeCodeBlock);
+            }
+            GUILayout.EndHorizontal();
+
             GUILayout.EndArea();
         }
     }

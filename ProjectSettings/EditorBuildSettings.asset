@@ -6,5 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/TCPServer.unity
+    guid: c6bb78020ef443a43abb3d52e559819f
+  - enabled: 0
     path: Assets/SocketTest.unity
     guid: c3f30b92fd23e3e4992ddccfa701ac1a
