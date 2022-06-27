@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace KyleDarkMagic
@@ -34,6 +35,27 @@ namespace KyleDarkMagic
         static private UDPSocket clientSocket = null;
         public string ServerStartIp = "127.0.0.1";
 
+
+        void Start()
+        {
+            SelectStartIP();
+        }
+
+        void SelectStartIP()
+        {
+            hostName = Dns.GetHostName();
+            var regex = new Regex("[\\d]+\\.[\\d]+\\.[\\d]+\\.[\\d]+");
+            foreach (var ipAddress in Dns.GetHostEntry(hostName).AddressList)
+            {
+                var ipStr = ipAddress.ToString();
+                if (regex.IsMatch(ipStr))
+                {
+                    ServerStartIp = ipStr;
+                    Debug.Log("found "+ipStr);
+                }
+            }
+        }
+
         void OnGUI()
         {
             hostName = Dns.GetHostName();
@@ -46,7 +68,10 @@ namespace KyleDarkMagic
             GUILayout.Label("Port:");
             int.TryParse(GUILayout.TextField(port.ToString()),out port);
             GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("ServerStartIP:");
             ServerStartIp = GUILayout.TextField(ServerStartIp);
+            GUILayout.EndHorizontal();
             if (curSocket == null)
             {
                 if (GUILayout.Button("StartServer",GUILayout.Height(50),GUILayout.Width(100)))
@@ -67,7 +92,6 @@ namespace KyleDarkMagic
             if (GUILayout.Button("SendMsg", GUILayout.Height(50), GUILayout.Width(100)))
             {
                 var tempSocket = new UDPSocket();
-                Debug.Log("PassIp:"+ IPAddress.Parse(serverIp));
                 tempSocket.Client(serverIp, port);
                 clientSocket = tempSocket;
                 clientSocket.Send(JsonUtility.ToJson(new MessageUnit { Content = "DDDDD", Id = 2 }));
