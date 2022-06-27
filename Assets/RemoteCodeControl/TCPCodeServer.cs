@@ -50,26 +50,6 @@ namespace MyNamespace
             tcpSocket.StartServer(inputServerIp.text,int.Parse(inputPort.text));
         }
 
-        void NewConnetionCallback(IAsyncResult ar)
-        {
-            // Get the listener that handles the client request.
-            TcpListener listener = (TcpListener)ar.AsyncState;
-
-            // End the operation and display the received data on 
-            // the console.
-            TcpClient client = listener.EndAcceptTcpClient(ar);
-
-            // Process the connection here. (Add the client to a
-            // server table, read data, etc.)
-            Debug.Log("Client connected completed");
-            NetworkStream ns = client.GetStream(); //networkstream is used to send/receive messages
-
-            byte[] hello = new byte[100];   //any message must be serialized (converted to byte array)
-            hello = Encoding.Default.GetBytes("hello world");  //conversion string => byte array
-
-            ns.Write(hello, 0, hello.Length);     //sending the message
-
-        }
 
         public void StartAsClient()
         {
