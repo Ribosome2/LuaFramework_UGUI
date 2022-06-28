@@ -55,7 +55,6 @@ namespace LuaVarWatcher
         private CommonDropDownList mCommonDropDownList;
         private LuaCodeRunConsole mCodeRunConsole=new LuaCodeRunConsole();
 
-        private float luaVarWidth = 400;
         WindowSplitterDrawer mSplitterDrawer =new WindowSplitterDrawer();
 
         Rect multiColumnTreeViewRect
@@ -70,6 +69,7 @@ namespace LuaVarWatcher
             {
                 ScanTargetTable(LuaHandleInterface.GetLuaPtr());
             }
+            mCodeRunConsole.Update();
         }
 
         void OnGUI()
@@ -105,7 +105,7 @@ namespace LuaVarWatcher
                 GUILayout.EndHorizontal();
 
 
-                mCodeRunConsole.OnGUI(mSplitterDrawer.CodeExcuteRect,L);
+                mCodeRunConsole.OnGUI(mSplitterDrawer.CodeExcuteRect,L,this);
                 mSplitterDrawer.SetOwnerWindow(this);
                 mSplitterDrawer.OnGUI();
             }

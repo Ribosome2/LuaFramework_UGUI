@@ -4,109 +4,156 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using LuaFramework;
+using LuaInterface;
 using UnityEngine;
 
-public class TCPTestClient : MonoBehaviour
+namespace RemoteCodeControl
 {
-	#region private members 	
-	private TcpClient socketConnection;
-	private Thread clientReceiveThread;
-	#endregion
+	public class TCPTestClient : MonoBehaviour
+	{
 
-    private int port = 8052;
-    public string IP = "127.0.0.1";
-
-
-    private string content="";
-	void OnGUI()
-    {
-        IP = GUILayout.TextField(IP);
-        if (GUILayout.Button("Connect To Sever"))
+		public static TCPTestClient Instance 
         {
-            ConnectToTcpServer();
-		}
+            get
+            {
+                if (mInstance == null)
+                {
+					GameObject clientGo = new GameObject("TestClient");
+                    mInstance = clientGo.AddComponent<TCPTestClient>();
+                }
 
-        if (GUILayout.Button("Send msg"))
-        {
-            SendMessage("DDD");
+                return mInstance;
+            }
         }
-		GUILayout.Label(content);
-	}
-	/// <summary> 	
-	/// Setup socket connection. 	
-	/// </summary> 	
-	private void ConnectToTcpServer()
-	{
-		try
+
+        private static TCPTestClient mInstance;
+
+		#region private members 	
+		private TcpClient socketConnection;
+		private Thread clientReceiveThread;
+		#endregion
+
+		private int port = 8052;
+		public string IP = "127.0.0.1";
+		Queue<string> mMessageQueue = new Queue<string>();
+
+		private string content = "";
+
+
+		void Update()
 		{
-			clientReceiveThread = new Thread(new ThreadStart(ListenForData));
-			clientReceiveThread.IsBackground = true;
-			clientReceiveThread.Start();
-		}
-		catch (Exception e)
-		{
-			Debug.Log("On client connect exception " + e);
-		}
-	}
-	/// <summary> 	
-	/// Runs in background clientReceiveThread; Listens for incomming data. 	
-	/// </summary>     
-	private void ListenForData()
-	{
-		try
-		{
-			socketConnection = new TcpClient(IP, port);
-			Byte[] bytes = new Byte[1024];
-			while (true)
+			while (mMessageQueue.Count > 0)
 			{
-				// Get a stream object for reading 				
-				using (NetworkStream stream = socketConnection.GetStream())
+				var msg = mMessageQueue.Dequeue();
+
+				ExecuteLuaCode(msg);
+			}
+		}
+
+		private static void ExecuteLuaCode(string msg)
+		{
+			var L = LuaHandleInterface.GetLuaPtr();
+			if (L != IntPtr.Zero)
+			{
+				var oldTop = LuaDLL.lua_gettop(L);
+				if (LuaDLL.luaL_dostring(L, msg))
 				{
-					int length;
-					// Read incomming stream into byte arrary. 					
-					while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
-					{
-						var incommingData = new byte[length];
-						Array.Copy(bytes, 0, incommingData, 0, length);
-						// Convert byte array to string message. 						
-						string serverMessage = Encoding.ASCII.GetString(incommingData);
-                        content += serverMessage;
-						Debug.Log("server message received as: " + serverMessage);
-					}
+				}
+				else
+				{
+					Debug.LogError("执行错误: " + LuaDLL.lua_tostring(L, -1));
+					LuaDLL.lua_settop(L, oldTop);
 				}
 			}
 		}
-		catch (SocketException socketException)
+
+		void OnGUI()
 		{
-			Debug.Log("Socket exception: " + socketException);
-		}
-	}
-	/// <summary> 	
-	/// Send message to server using socket connection. 	
-	/// </summary> 	
-	private void SendMessage(string msg)
-	{
-		if (socketConnection == null)
-		{
-			Debug.LogError("Not connected to sever ,yet");
-			return;
-		}
-		try
-		{
-			// Get a stream object for writing. 			
-			NetworkStream stream = socketConnection.GetStream();
-			if (stream.CanWrite)
+			IP = GUILayout.TextField(IP);
+			if (GUILayout.Button("Connect To Sever"))
 			{
-				// Convert string message to byte array.                 
-				byte[] clientMessageAsByteArray = Encoding.ASCII.GetBytes(msg);
-				// Write byte array to socketConnection stream.                 
-				stream.Write(clientMessageAsByteArray, 0, clientMessageAsByteArray.Length);
-				Debug.Log("Client sent his message - should be received by server");
+				ConnectToTcpServer(IP,port);
+			}
+
+			if (GUILayout.Button("Send msg"))
+			{
+				SendMessageToServer("DDD");
+			}
+			GUILayout.Label(content);
+		}
+
+		public void ConnectToTcpServer(string ip,int port)
+        {
+            this.IP = ip;
+            this.port = port;
+			try
+			{
+				clientReceiveThread = new Thread(new ThreadStart(ListenForSererData));
+				clientReceiveThread.IsBackground = true;
+				clientReceiveThread.Start();
+			}
+			catch (Exception e)
+			{
+				Debug.Log("On client connect exception " + e);
 			}
 		}
-		catch (SocketException socketException)
+
+		private void ListenForSererData()
 		{
-			Debug.Log("Socket exception: " + socketException);
+			try
+			{
+				socketConnection = new TcpClient(IP, port);
+				Byte[] bytes = new Byte[1024];
+				while (true)
+				{
+					// Get a stream object for reading 				
+					using (NetworkStream stream = socketConnection.GetStream())
+					{
+						int length;
+						while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
+						{
+							var incommingData = new byte[length];
+							Array.Copy(bytes, 0, incommingData, 0, length);
+							string serverMessage = Encoding.ASCII.GetString(incommingData);
+							content += serverMessage;
+							mMessageQueue.Enqueue(serverMessage);
+							Debug.Log("server message received as: " + serverMessage);
+						}
+					}
+				}
+			}
+			catch (SocketException socketException)
+			{
+				Debug.Log("Socket exception: " + socketException);
+			}
+		}
+		/// <summary> 	
+		/// Send message to server using socket connection. 	
+		/// </summary> 	
+		private void SendMessageToServer(string msg)
+		{
+			if (socketConnection == null)
+			{
+				Debug.LogError("Not connected to sever ,yet");
+				return;
+			}
+			try
+			{
+				// Get a stream object for writing. 			
+				NetworkStream stream = socketConnection.GetStream();
+				if (stream.CanWrite)
+				{
+					byte[] clientMessageAsByteArray = Encoding.ASCII.GetBytes(msg);
+					stream.Write(clientMessageAsByteArray, 0, clientMessageAsByteArray.Length);
+					Debug.Log("Client sent bytes "+ clientMessageAsByteArray.Length);
+				}
+			}
+			catch (SocketException socketException)
+			{
+				Debug.Log("Socket exception: " + socketException);
+			}
 		}
 	}
+
 }

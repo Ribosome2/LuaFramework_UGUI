@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using LuaInterface;
 using UnityEditor;
@@ -16,6 +17,8 @@ namespace LuaVarWatcher
         private LRUContentRecorder reloadRecorder;
         private GUIContent debugContent;
         private TCPCodeServer mCodeServer =new TCPCodeServer();
+        private EditorWindow mOwnerWindow;
+        Queue<string> mMessageQueue = new Queue<string>();
         public LuaCodeRunConsole()
         {
             contentRecorder = new LRUContentRecorder("LuaDebugCache/RecentExecuteCode.json");
@@ -38,8 +41,9 @@ namespace LuaVarWatcher
         {
             Debug.Log("destroy");
         }
-        public void OnGUI(Rect drawArea,IntPtr L )
+        public void OnGUI(Rect drawArea,IntPtr L ,EditorWindow ownerWindow)
         {
+            mOwnerWindow = ownerWindow;
             GUILayout.BeginArea(drawArea);
             if (debugContent == null)
             {
@@ -92,24 +96,25 @@ namespace LuaVarWatcher
             GUILayout.EndHorizontal();
             scroll = EditorGUILayout.BeginScrollView(scroll);
 
-            executeCodeBlock = EditorGUILayout.TextArea(executeCodeBlock, GUILayout.Height(drawArea.height - 230));
+            executeCodeBlock = EditorGUILayout.TextArea(executeCodeBlock, GUILayout.Height(drawArea.height - 180));
             EditorGUILayout.EndScrollView();
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("IP:");
             mCodeServer.IP= GUILayout.TextField(mCodeServer.IP);
-            if (mCodeServer.IsServerStarted)
+            if (!mCodeServer.IsServerStarted)
             {
                 if (GUILayout.Button("StartServer"))
                 {
                     mCodeServer.Start();
+                    mCodeServer.SetClientMsgCallBack(this.ClientMsgCallBack);
                 }
             }
             else
             {
                 if (GUILayout.Button("ShutDown"))
                 {
-                    mCodeServer.Start();
+                    mCodeServer.ShutDown();
                 }
             }
            
@@ -120,6 +125,29 @@ namespace LuaVarWatcher
             GUILayout.EndHorizontal();
 
             GUILayout.EndArea();
+        }
+
+        public void Update()
+        {
+            if (EditorApplication.isCompiling)
+            {
+                mCodeServer.ShutDown();
+            }
+
+            while (mMessageQueue.Count>0)
+            {
+                var msg = mMessageQueue.Dequeue();
+                if (mOwnerWindow != null)
+                {
+                    mOwnerWindow.ShowNotification(new GUIContent(msg));
+                }
+            }
+        }
+
+        void ClientMsgCallBack(string msg)
+        {
+            mMessageQueue.Enqueue(msg);
+           
         }
     }
 }
