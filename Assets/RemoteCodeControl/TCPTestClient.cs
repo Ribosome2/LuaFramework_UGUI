@@ -20,6 +20,7 @@ namespace RemoteCodeControl
                 if (mInstance == null)
                 {
 					GameObject clientGo = new GameObject("TestClient");
+					DontDestroyOnLoad(clientGo);
                     mInstance = clientGo.AddComponent<TCPTestClient>();
                 }
 
@@ -68,36 +69,53 @@ namespace RemoteCodeControl
 			}
 		}
 
-		void OnGUI()
-		{
-			IP = GUILayout.TextField(IP);
-			if (GUILayout.Button("Connect To Sever"))
-			{
-				ConnectToTcpServer(IP,port);
-			}
-
-			if (GUILayout.Button("Send msg"))
-			{
-				SendMessageToServer("DDD");
-			}
-			GUILayout.Label(content);
-		}
+//		void OnGUI()
+//		{
+//			IP = GUILayout.TextField(IP);
+//			if (GUILayout.Button("Connect To Sever"))
+//			{
+//				ConnectToTcpServer(IP,port);
+//			}
+//
+//			if (GUILayout.Button("Send msg"))
+//			{
+//				SendMessageToServer("DDD");
+//			}
+//			GUILayout.Label(content);
+//		}
 
 		public void ConnectToTcpServer(string ip,int port)
         {
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             this.IP = ip;
             this.port = port;
-			try
-			{
-				clientReceiveThread = new Thread(new ThreadStart(ListenForSererData));
-				clientReceiveThread.IsBackground = true;
-				clientReceiveThread.Start();
-			}
-			catch (Exception e)
-			{
-				Debug.Log("On client connect exception " + e);
-			}
+            try
+            {
+                clientReceiveThread = new Thread(new ThreadStart(ListenForSererData));
+                clientReceiveThread.IsBackground = true;
+                clientReceiveThread.Start();
+            }
+            catch (Exception e)
+            {
+                Debug.Log("On client connect exception " + e);
+            }
+#else
+            Debug.Log("What are you doing ?" );
+#endif
+
+
 		}
+
+        public bool IsConnected()
+        {
+            if (socketConnection != null  && socketConnection.Connected)
+            {
+                return true;
+            }
+
+            return false;
+        }
 
 		private void ListenForSererData()
 		{
@@ -131,7 +149,7 @@ namespace RemoteCodeControl
 		/// <summary> 	
 		/// Send message to server using socket connection. 	
 		/// </summary> 	
-		private void SendMessageToServer(string msg)
+		public void SendMessageToServer(string msg)
 		{
 			if (socketConnection == null)
 			{

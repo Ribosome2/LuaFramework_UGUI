@@ -8,6 +8,7 @@ using UnityEditor;
 using BindType = ToLuaMenu.BindType;
 using UnityEngine.UI;
 using System.Reflection;
+using RemoteCodeControl;
 
 public static class CustomSettings
 {
@@ -173,6 +174,7 @@ public static class CustomSettings
         _GT(typeof(ThreadManager)),
         _GT(typeof(NetworkManager)),
         _GT(typeof(ResourceManager)),		  
+        _GT(typeof(TCPTestClient)),		  
     };
 
     public static List<Type> dynamicList = new List<Type>()
