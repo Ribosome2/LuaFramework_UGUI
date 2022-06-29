@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Text.RegularExpressions;
 using LuaInterface;
 using UnityEditor;
 using UnityEngine;
@@ -100,8 +102,13 @@ namespace LuaVarWatcher
             EditorGUILayout.EndScrollView();
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("IP:");
+            GUILayout.Label("IP:",GUILayout.Width(50));
             mCodeServer.IP= GUILayout.TextField(mCodeServer.IP);
+            if (EditorGUILayout.DropdownButton(new GUIContent("选IP"), FocusType.Passive, GUILayout.Width(70), GUILayout.Height(35)))
+            {
+                SelectStartIP(delegate (object content) { mCodeServer.IP = content as string; });
+            }
+
             if (!mCodeServer.IsServerStarted)
             {
                 if (GUILayout.Button("StartServer",GUILayout.Height(30)))
@@ -148,6 +155,31 @@ namespace LuaVarWatcher
         {
             mMessageQueue.Enqueue(msg);
            
+        }
+
+
+
+        void SelectStartIP(GenericMenu.MenuFunction2 func)
+        {
+            GenericMenu menu = new GenericMenu();
+            List<string> ipList = new List<string>();
+            var hostName = Dns.GetHostName();
+            var regex = new Regex("[\\d]+\\.[\\d]+\\.[\\d]+\\.[\\d]+");
+            foreach (var ipAddress in Dns.GetHostEntry(hostName).AddressList)
+            {
+                var ipStr = ipAddress.ToString();
+                if (regex.IsMatch(ipStr))
+                {
+                    ipList.Add(ipStr);
+                }
+            }
+            ipList.Add("127.0.0.1");
+
+            foreach (var content in ipList)
+            {
+                menu.AddItem(new GUIContent(content), false, func, content);
+            }
+            menu.ShowAsContext();
         }
     }
 }
