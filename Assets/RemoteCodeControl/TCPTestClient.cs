@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using LuaFramework;
 using LuaInterface;
 using UnityEngine;
 
@@ -99,6 +98,7 @@ namespace RemoteCodeControl
             catch (Exception e)
             {
                 Debug.Log("On client connect exception " + e);
+				clientReceiveThread.Abort();
             }
 #else
             Debug.Log("What are you doing ?" );
@@ -121,9 +121,10 @@ namespace RemoteCodeControl
 		{
 			try
 			{
+                Debug.Log("StartListenForServer");
 				socketConnection = new TcpClient(IP, port);
 				Byte[] bytes = new Byte[1024];
-				while (true)
+				while ( socketConnection.Connected)
 				{
 					// Get a stream object for reading 				
 					using (NetworkStream stream = socketConnection.GetStream())
@@ -133,17 +134,24 @@ namespace RemoteCodeControl
 						{
 							var incommingData = new byte[length];
 							Array.Copy(bytes, 0, incommingData, 0, length);
-							string serverMessage = Encoding.ASCII.GetString(incommingData);
+							string serverMessage = Encoding.UTF8.GetString(incommingData);
 							content += serverMessage;
 							mMessageQueue.Enqueue(serverMessage);
 							Debug.Log("server message received as: " + serverMessage);
 						}
+						Debug.Log("DistConnect");
 					}
 				}
+                Debug.Log("Listen for Server Stop--");
+
 			}
 			catch (SocketException socketException)
 			{
-				Debug.Log("Socket exception: " + socketException);
+                if (clientReceiveThread != null)
+                {
+                    clientReceiveThread.Abort();
+				}
+				Debug.Log("Socket exception:---  " + socketException);
 			}
 		}
 		/// <summary> 	
@@ -151,7 +159,7 @@ namespace RemoteCodeControl
 		/// </summary> 	
 		public void SendMessageToServer(string msg)
 		{
-			if (socketConnection == null)
+			if (socketConnection == null || socketConnection.Connected==false)
 			{
 				Debug.LogError("Not connected to sever ,yet");
 				return;
@@ -162,16 +170,20 @@ namespace RemoteCodeControl
 				NetworkStream stream = socketConnection.GetStream();
 				if (stream.CanWrite)
 				{
-					byte[] clientMessageAsByteArray = Encoding.ASCII.GetBytes(msg);
+					byte[] clientMessageAsByteArray = Encoding.UTF8.GetBytes(msg);
 					stream.Write(clientMessageAsByteArray, 0, clientMessageAsByteArray.Length);
 					Debug.Log("Client sent bytes "+ clientMessageAsByteArray.Length);
 				}
 			}
 			catch (SocketException socketException)
 			{
-				Debug.Log("Socket exception: " + socketException);
+				Debug.Log("Socket exception:11 1111122" + socketException);
 			}
 		}
-	}
 
+        void OnApplicationQuit()
+        {
+            Debug.Log("OnApplicationQuit()----");
+        }
+	}
 }

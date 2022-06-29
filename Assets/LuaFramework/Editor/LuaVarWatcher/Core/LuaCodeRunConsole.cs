@@ -96,7 +96,7 @@ namespace LuaVarWatcher
             GUILayout.EndHorizontal();
             scroll = EditorGUILayout.BeginScrollView(scroll);
 
-            executeCodeBlock = EditorGUILayout.TextArea(executeCodeBlock, GUILayout.Height(drawArea.height - 180));
+            executeCodeBlock = EditorGUILayout.TextArea(executeCodeBlock, GUILayout.Height(drawArea.height - 120));
             EditorGUILayout.EndScrollView();
 
             GUILayout.BeginHorizontal();
@@ -104,7 +104,7 @@ namespace LuaVarWatcher
             mCodeServer.IP= GUILayout.TextField(mCodeServer.IP);
             if (!mCodeServer.IsServerStarted)
             {
-                if (GUILayout.Button("StartServer"))
+                if (GUILayout.Button("StartServer",GUILayout.Height(30)))
                 {
                     mCodeServer.Start();
                     mCodeServer.SetClientMsgCallBack(this.ClientMsgCallBack);
@@ -112,13 +112,13 @@ namespace LuaVarWatcher
             }
             else
             {
-                if (GUILayout.Button("ShutDown"))
+                if (GUILayout.Button("ShutDown", GUILayout.Height(30)))
                 {
                     mCodeServer.ShutDown();
                 }
             }
            
-            if (GUILayout.Button("SendMsg"))
+            if (GUILayout.Button("SendMsg", GUILayout.Height(30)))
             {
                 mCodeServer.SendMessage(executeCodeBlock);
             }

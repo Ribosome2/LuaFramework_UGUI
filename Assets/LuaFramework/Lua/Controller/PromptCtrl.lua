@@ -6,7 +6,6 @@ require "3rd/pbc/protobuf"
 local sproto = require "3rd/sproto/sproto"
 local core = require "sproto.core"
 local print_r = require "3rd/sproto/print_r"
-
 PromptCtrl = {};
 local this = PromptCtrl;
 
@@ -89,6 +88,7 @@ function PromptCtrl.OnClick(go)
     else
         RemoteCodeControl.TCPTestClient.Instance:ConnectToTcpServer("127.0.0.1",8052)
     end
+    
 end
 
 --测试发送SPROTO--

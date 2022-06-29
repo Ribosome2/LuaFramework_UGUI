@@ -16,3 +16,4 @@ SocketTest_Data/
 SocketTest.exe
 TCPServer_Data/
 TCPServer.exe
+WinPixEventRuntime.dll

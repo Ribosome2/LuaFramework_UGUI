@@ -42,12 +42,15 @@ namespace LuaVarWatcher
         }
 
 		public void Start()
-		{
+        {
+            ShutDown();
+
+			mServerStarted = true;
 			// Start TcpServer background thread 		
 			tcpListenerThread = new Thread(new ThreadStart(ListenForIncomingRequests));
 			tcpListenerThread.IsBackground = true;
 			tcpListenerThread.Start();
-            mServerStarted = true;
+            
         }
 
         public void ShutDown()
@@ -55,8 +58,8 @@ namespace LuaVarWatcher
             if (mServerStarted && tcpListener!=null)
             {
                 mServerStarted = false;
-				tcpListener.Server.Close();
                 tcpListenerThread.Abort();
+				tcpListener.Server.Close();
 				Debug.Log("ShutDown Code Server");
             }
         }
@@ -74,7 +77,7 @@ namespace LuaVarWatcher
 				tcpListener.Start();
 				Debug.Log("Server is listening");
 				Byte[] bytes = new Byte[1024];
-				while (true)
+				while (mServerStarted)
 				{
 					using (connectedTcpClient = tcpListener.AcceptTcpClient())
 					{
@@ -82,12 +85,12 @@ namespace LuaVarWatcher
 						using (NetworkStream stream = connectedTcpClient.GetStream())
 						{
 							int length;
-							while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
+							while (mServerStarted && (length = stream.Read(bytes, 0, bytes.Length)) != 0)
 							{
 								var incommingData = new byte[length];
 								Array.Copy(bytes, 0, incommingData, 0, length);
 								// Convert byte array to string message. 							
-								string clientMessage = Encoding.ASCII.GetString(incommingData);
+								string clientMessage = Encoding.UTF8.GetString(incommingData);
                                 Debug.Log("client message received as: " + clientMessage);
 
 								if (mClientMsgCallBack != null)
@@ -109,7 +112,7 @@ namespace LuaVarWatcher
 		/// </summary> 	
 		public void SendMessage(string msg)
 		{
-			if (connectedTcpClient == null)
+			if (connectedTcpClient == null || connectedTcpClient.Connected==false)
 			{
 				Debug.LogError(" no client connected !!!");
 				return;
@@ -121,7 +124,7 @@ namespace LuaVarWatcher
 				NetworkStream stream = connectedTcpClient.GetStream();
 				if (stream.CanWrite)
 				{
-					byte[] serverMessageAsByteArray = Encoding.ASCII.GetBytes(msg);
+					byte[] serverMessageAsByteArray = Encoding.UTF8.GetBytes(msg);
 					// Write byte array to socketConnection stream.               
 					stream.Write(serverMessageAsByteArray, 0, serverMessageAsByteArray.Length);
 					Debug.Log("Server sent his message - should be received by client. SendBytes:"+serverMessageAsByteArray.Length);
@@ -136,5 +139,11 @@ namespace LuaVarWatcher
 				Debug.Log("Socket exception: " + socketException);
 			}
 		}
+
+
+        void OnApplicationQuit()
+        {
+            Debug.Log("OnApplicationQuit()----");
+        }
 	}
 }
