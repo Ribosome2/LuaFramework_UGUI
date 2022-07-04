@@ -53,6 +53,7 @@ namespace RemoteCodeControl
 
 		private static void ExecuteLuaCode(string msg)
 		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
 			var L = LuaHandleInterface.GetLuaPtr();
 			if (L != IntPtr.Zero)
 			{
@@ -66,22 +67,23 @@ namespace RemoteCodeControl
 					LuaDLL.lua_settop(L, oldTop);
 				}
 			}
+#endif
 		}
 
-//		void OnGUI()
-//		{
-//			IP = GUILayout.TextField(IP);
-//			if (GUILayout.Button("Connect To Sever"))
-//			{
-//				ConnectToTcpServer(IP,port);
-//			}
-//
-//			if (GUILayout.Button("Send msg"))
-//			{
-//				SendMessageToServer("DDD");
-//			}
-//			GUILayout.Label(content);
-//		}
+		//		void OnGUI()
+		//		{
+		//			IP = GUILayout.TextField(IP);
+		//			if (GUILayout.Button("Connect To Sever"))
+		//			{
+		//				ConnectToTcpServer(IP,port);
+		//			}
+		//
+		//			if (GUILayout.Button("Send msg"))
+		//			{
+		//				SendMessageToServer("DDD");
+		//			}
+		//			GUILayout.Label(content);
+		//		}
 
 		public void ConnectToTcpServer(string ip,int port)
         {
@@ -119,6 +121,7 @@ namespace RemoteCodeControl
 
 		private void ListenForSererData()
 		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
 			try
 			{
                 Debug.Log("StartListenForServer");
@@ -153,12 +156,14 @@ namespace RemoteCodeControl
 				}
 				Debug.Log("Socket exception:---  " + socketException);
 			}
+#endif
 		}
 		/// <summary> 	
 		/// Send message to server using socket connection. 	
 		/// </summary> 	
 		public void SendMessageToServer(string msg)
 		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
 			if (socketConnection == null || socketConnection.Connected==false)
 			{
 				Debug.LogError("Not connected to sever ,yet");
@@ -179,11 +184,17 @@ namespace RemoteCodeControl
 			{
 				Debug.Log("Socket exception:11 1111122" + socketException);
 			}
+#endif
 		}
 
         void OnApplicationQuit()
         {
             Debug.Log("OnApplicationQuit()----");
-        }
+            if (clientReceiveThread != null)
+            {
+                clientReceiveThread.Abort();
+			}
+           
+		}
 	}
 }

@@ -44,6 +44,9 @@ namespace LuaVarWatcher
 
         public void AddUseRecord(string content)
         {
+
+            content = content.Trim();
+
             if (string.IsNullOrEmpty(content))
             {
                 return;
@@ -79,7 +82,7 @@ namespace LuaVarWatcher
             GenericMenu menu = new GenericMenu();
             foreach (var content in GetContentList())
             {
-                menu.AddItem(new GUIContent(content), false, func, content);
+                menu.AddItem(new GUIContent(content), false, func, content.Trim());
             }
             menu.ShowAsContext();
         }
