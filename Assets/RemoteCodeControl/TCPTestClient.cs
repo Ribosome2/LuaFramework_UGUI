@@ -9,6 +9,20 @@ using UnityEngine;
 
 namespace RemoteCodeControl
 {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+	public enum RemoteCodeControlMessageType
+	{
+        ReloadFileContent=1,
+		Command=2
+    } 
+
+	public class RemoteCodeControlMessage
+    {
+        public int ID=0;
+        public string Content;
+    }
+#endif
+
 	public class TCPTestClient : MonoBehaviour
 	{
 
@@ -47,7 +61,25 @@ namespace RemoteCodeControl
 			{
 				var msg = mMessageQueue.Dequeue();
 
-				ExecuteLuaCode(msg);
+
+                try
+                {
+                    var messageData = JsonUtility.FromJson<RemoteCodeControlMessage>(msg);
+                    if (messageData.ID == (int)RemoteCodeControlMessageType.ReloadFileContent)
+                    {
+                        ExecuteLuaCode(messageData.Content);
+                        LuaHandleInterface.HandleReloadRemoteLuaFile();
+                    }
+                    else
+                    {
+                        ExecuteLuaCode(messageData.Content);
+                    }
+				}
+                catch (Exception e)
+                {
+                    Debug.LogError(" handle message error :"+ msg+" "+ e.Message);
+                }
+               
 			}
 		}
 

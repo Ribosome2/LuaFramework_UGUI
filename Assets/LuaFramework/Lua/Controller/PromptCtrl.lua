@@ -205,3 +205,5 @@ end
 function PromptCtrl.Close()
 	panelMgr:ClosePanel(CtrlNames.Prompt);
 end
+
+print("-----------------------PromptCtrl")

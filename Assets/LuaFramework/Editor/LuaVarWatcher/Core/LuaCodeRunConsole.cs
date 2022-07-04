@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
 using LuaInterface;
+using RemoteCodeControl;
 using UnityEditor;
 using UnityEngine;
 
@@ -59,7 +60,7 @@ namespace LuaVarWatcher
             }
             GUILayout.BeginHorizontal();
 
-            EditorGUILayout.LabelField("重置路径：", reloadPath,GUILayout.Width(70));
+            EditorGUILayout.LabelField("重载路径：", reloadPath,GUILayout.Width(70));
             if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30), GUILayout.Height(35)))
             {
                 reloadRecorder.ShowCodeExecuteDropDown( delegate (object content) { reloadPath = content as string; });
@@ -109,9 +110,11 @@ namespace LuaVarWatcher
                 SelectStartIP(delegate (object content) { mCodeServer.IP = content as string; });
             }
 
+
+            var serverButtonHeight = 20;
             if (!mCodeServer.IsServerStarted)
             {
-                if (GUILayout.Button("StartServer",GUILayout.Height(30)))
+                if (GUILayout.Button("StartServer",GUILayout.Height(serverButtonHeight)))
                 {
                     mCodeServer.Start();
                     mCodeServer.SetClientMsgCallBack(this.ClientMsgCallBack);
@@ -119,19 +122,97 @@ namespace LuaVarWatcher
             }
             else
             {
-                if (GUILayout.Button("ShutDown", GUILayout.Height(30)))
+                if (GUILayout.Button("ShutDown", GUILayout.Height(serverButtonHeight)))
                 {
                     mCodeServer.ShutDown();
                 }
             }
            
-            if (GUILayout.Button("SendMsg", GUILayout.Height(30)))
+            if (GUILayout.Button("SendMsg", GUILayout.Height(serverButtonHeight)))
             {
-                mCodeServer.SendMessage(executeCodeBlock);
+                mCodeServer.SendMessage(JsonUtility.ToJson(new RemoteCodeControl.RemoteCodeControlMessage()
+                {
+                    Content = executeCodeBlock,
+                    ID = (int)RemoteCodeControlMessageType.Command
+                }));
+            }
+
+            if (GUILayout.Button("RemoteReload", GUILayout.Height(serverButtonHeight)))
+            {
+                TryReloadInRemote(reloadPath);
             }
             GUILayout.EndHorizontal();
 
             GUILayout.EndArea();
+        }
+
+        private void TryReloadInRemote(string luaFileName)
+        {
+            var guids = AssetDatabase.FindAssets(luaFileName);
+            List<string> targetList = new List<string>();
+            foreach (string guid1 in guids)
+            {
+                var assetPath = AssetDatabase.GUIDToAssetPath(guid1);
+                if (Path.GetExtension(assetPath) == ".lua" &&
+                    Path.GetFileNameWithoutExtension(assetPath) == luaFileName)
+                {
+                    targetList.Add(assetPath);
+                }
+            }
+
+            if (targetList.Count == 0)
+            {
+                mOwnerWindow.ShowNotification(new GUIContent("没有找到文件"+luaFileName));
+            }
+            else
+            {
+                if (targetList.Count > 1)
+                {
+                    GenericMenu menu = new GenericMenu();
+                    foreach (var targetPath in targetList)
+                    {
+                        menu.AddItem(new GUIContent(targetPath), false, delegate(object obj)
+                        {
+                            SendReloadContentToRemote(obj as string);
+                        }, targetPath);
+                    }
+                    menu.ShowAsContext();
+                }
+                else
+                {
+                    var targetPath = targetList[0];
+                    SendReloadContentToRemote(targetPath);
+                }
+            }
+        }
+
+        private void SendReloadContentToRemote(string targetPath)
+        {
+            var fileContent = File.ReadAllText(targetPath);
+
+            mCodeServer.SendMessage(JsonUtility.ToJson(new RemoteCodeControl.RemoteCodeControlMessage()
+            {
+                Content = fileContent,
+                ID = (int) RemoteCodeControlMessageType.ReloadFileContent
+            }));
+        }
+
+        static string GetTargetLuaPath(string relativePath, string luaFileName)
+        {
+            var guids = AssetDatabase.FindAssets(luaFileName);
+            foreach (string guid1 in guids)
+            {
+                var assetPath = AssetDatabase.GUIDToAssetPath(guid1);
+                if (Path.GetExtension(assetPath) == ".lua" &&
+                    Path.GetFileNameWithoutExtension(assetPath) == luaFileName
+                    && assetPath.Contains(relativePath)
+                )
+                {
+                    return assetPath;
+                }
+            }
+            //todo use relativePath to choose  multiple files with same name
+            return null;
         }
 
         public void Update()

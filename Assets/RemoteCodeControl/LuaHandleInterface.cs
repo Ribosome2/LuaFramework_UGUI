@@ -32,6 +32,11 @@ namespace RemoteCodeControl
             //replace with implementation in your project
         }
 
+        public static void HandleReloadRemoteLuaFile()
+        {
+            //replace with implementation in your project
+        }
+
         public static void ConnectDebugger()
         {
 
