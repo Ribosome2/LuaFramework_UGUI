@@ -57,9 +57,16 @@ function PromptCtrl.InitPanel(objs)
 	    label:GetComponent('Text').text = tostring(i);
 	end
 end
-
+local mt = getmetatable(UnityEngine.GameObject)
+local oldFindWithTag = mt["Instantiate"]
+mt["Instantiate"] = function(...)
+    print("callFrom lua Instantiate",debug.traceback())
+    return oldFindWithTag(...)
+end
 --滚动项单击--
 function PromptCtrl.OnItemClick(go)
+
+    GameObject.Instantiate(go)
     log(go.name);
 end
 
@@ -88,7 +95,7 @@ function PromptCtrl.OnClick(go)
     else
         RemoteCodeControl.TCPTestClient.Instance:ConnectToTcpServer("127.0.0.1",8052)
     end
-    
+
 end
 
 --测试发送SPROTO--
