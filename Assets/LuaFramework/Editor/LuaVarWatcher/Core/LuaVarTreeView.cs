@@ -187,6 +187,25 @@ namespace LuaVarWatcher
             }
         }
 
+        protected override void ContextClickedItem(int id)
+        {
+            var item = FindItem(id, rootItem);
+            if (item != null)
+            {
+                var luaItem = item as LuaVarTreeViewItem;
+                if (luaItem != null && luaItem.luaData.luaValueType==LuaTypes.LUA_TFUNCTION)
+                {
+                    GenericMenu menu =new GenericMenu();
+                    menu.AddItem(new GUIContent("监测调用"), false,delegate()
+                    {
+
+                    });
+                    menu.ShowAsContext();
+                }
+            }
+            base.ContextClickedItem(id);
+        }
+
         protected override bool CanRename(TreeViewItem item)
         {
             return true;
