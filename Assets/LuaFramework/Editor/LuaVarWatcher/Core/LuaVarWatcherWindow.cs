@@ -127,6 +127,9 @@ namespace LuaVarWatcher
                     mLuaVarTreeView.IgnoreFunction = toggle;
                     mLuaVarTreeView.Reload();
                 }
+
+                var treeRect = mSplitterDrawer.TreeViewRect;
+                GUI.Label(new Rect(treeRect.x, treeRect.y-20,treeRect.width,25),mLuaVarTreeView.GetSingleSelectItemPath());
                 mLuaVarTreeView.OnGUI(mSplitterDrawer.TreeViewRect);
 
             }

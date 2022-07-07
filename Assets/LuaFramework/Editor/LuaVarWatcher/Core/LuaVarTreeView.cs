@@ -23,10 +23,23 @@ namespace LuaVarWatcher
                 if (selectedItem != null)
                 {
                     var path = "";
+                    int index = 0;
                     while (selectedItem != null && selectedItem is LuaVarTreeViewItem)
                     {
+                        var luaNodeItem = selectedItem as LuaVarTreeViewItem;
+                        if (index == 0)
+                        {
+                            path = luaNodeItem.luaData.key;
+                        }
+                        else
+                        {
+                            path = string.Format("{0}.{1}", luaNodeItem.luaData.key, path);
+                        }
                         selectedItem = selectedItem.parent;
+                        index++;
                     }
+                    path = string.Format("{0}.{1}", RootNodeName, path);
+                    return path;
                 }
             }
 
