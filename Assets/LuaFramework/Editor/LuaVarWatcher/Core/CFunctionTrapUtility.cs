@@ -15,7 +15,7 @@ namespace LuaVarWatcher
                 var metaTable = functionPath.Substring(0, lastDot);
                 var metaKey = functionPath.Substring(lastDot+1, functionPath.Length - lastDot-1);
                 StringBuilder sb  = new StringBuilder();
-                sb.AppendLine("if globalFunctionTrapMap==nil then globalFunctionTrapMap={} end");
+                sb.AppendLine("if globalFunctionTrapMap==nil then globalFunctionTrapMap={} end)");
                 sb.AppendLine(string.Format("globalFunctionTrapMap['{0}'] =getmetatable({1})['{2}']", functionPath,metaTable,metaKey));
                 sb.AppendLine(string.Format("getmetatable({0})['{1}']']=function(...)", metaTable, metaKey));
                 sb.AppendLine(string.Format("print('lua call--- ' ,'{0}',debug.traceback())", functionPath));
@@ -34,21 +34,16 @@ namespace LuaVarWatcher
 
         private static void ExecuteTrapCmd(string cmdStr)
         {
-           
-          
             var L = LuaHandleInterface.GetLuaPtr();
-            var trapFilePath = @"D:\MyGitHub\LuaFramework_UGUI\Assets\LuaFramework\Lua\Logic\FunctionTrap\TrapTest.lua";
-            LuaDLL.luaL_dofile(L, trapFilePath);
-            
-            //            var oldTop = LuaDLL.lua_gettop(L);
-            //            if (LuaDLL.luaL_dostring(L, cmdStr))
-            //            {
-            //            }
-            //            else
-            //            {
-            //                Debug.LogError("执行错误: " + LuaDLL.lua_tostring(L, -1));
-            //                LuaDLL.lua_settop(L, oldTop);
-            //            }
+            var oldTop = LuaDLL.lua_gettop(L);
+            if (LuaDLL.luaL_dostring(L, "require('Logic.FunctionTrap.TrapTest')"))
+            {
+            }
+            else
+            {
+                Debug.LogError("执行错误: " + LuaDLL.lua_tostring(L, -1));
+                LuaDLL.lua_settop(L, oldTop);
+            }
         }
     }
 }
