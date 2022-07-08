@@ -64,15 +64,16 @@ end
 --    return oldFindWithTag(...)
 --end
 
-
---这里的代码直接放这里是能正确改写UnityEngine.GameObject.Instantiate的函数的，但是如果以 dostring 的形式在C#执行确没效果，WHY?
-if globalFunctionTrapMap==nil then globalFunctionTrapMap={} end
-globalFunctionTrapMap['UnityEngine.GameObject.Instantiate'] =getmetatable(UnityEngine.GameObject)['Instantiate']
-getmetatable(UnityEngine.GameObject)['Instantiate']=function(...)
-    print('lua call--- ' ,'UnityEngine.GameObject.Instantiate',debug.traceback())
-    return globalFunctionTrapMap['UnityEngine.GameObject.Instantiate'](...)
-end
-
+--require("Logic.FunctionTrap.TrapTest")
+----这里的代码直接放这里是能正确改写UnityEngine.GameObject.Instantiate的函数的，但是如果以 dostring 的形式在C#执行确没效果，WHY?
+--if globalFunctionTrapMap==nil then globalFunctionTrapMap={} end
+--print("before------------ ",getmetatable(UnityEngine.GameObject)['Instantiate'])
+--globalFunctionTrapMap['UnityEngine.GameObject.Instantiate'] =getmetatable(UnityEngine.GameObject)['Instantiate']
+--getmetatable(UnityEngine.GameObject)['Instantiate']=function(...)
+--    print('lua call--- ' ,'UnityEngine.GameObject.Instantiate',debug.traceback())
+--    return globalFunctionTrapMap['UnityEngine.GameObject.Instantiate'](...)
+--end
+--print("after------------ ",getmetatable(UnityEngine.GameObject)['Instantiate'])
 
 --滚动项单击--
 function PromptCtrl.OnItemClick(go)
