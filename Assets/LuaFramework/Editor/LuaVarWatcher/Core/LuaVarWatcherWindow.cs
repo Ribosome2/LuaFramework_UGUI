@@ -22,13 +22,19 @@ namespace LuaVarWatcher
         private LRUContentRecorder recentUseTableRecorder;
 
 
-
+        private LRUContentRecorder searchRecord;
         void OnEnable()
         {
             EditorApplication.update += OnEditorUpdate;
+
+
             if (recentUseTableRecorder == null)
             {
                 recentUseTableRecorder = new LRUContentRecorder("LuaDebugCache/RecentCheckTable.json");
+            }
+            if (searchRecord == null)
+            {
+                searchRecord = new LRUContentRecorder("LuaDebugCache/RecentSearchNode.json");
             }
         }
 
@@ -95,6 +101,10 @@ namespace LuaVarWatcher
                 if (GUILayout.Button("扫描输入内容"))
                 {
                     ScanTargetTable(L);
+                    if (string.IsNullOrEmpty(mLuaVarTreeView.searchString) == false)
+                    {
+                        searchRecord.AddUseRecord(mLuaVarTreeView.searchString);
+                    }
                 }
                 if (GUILayout.Button("全局表"))
                 {
@@ -116,10 +126,15 @@ namespace LuaVarWatcher
 
             if (mLuaVarTreeView != null && mLuaVarTreeView.luaNodeRoot != null)
             {
-                var searchLabelRect = new Rect(0, 60, 80, 30);
+                var searchLabelRect = new Rect(0, 60, 80, 18);
                 GUI.Label(searchLabelRect, "搜索节点名：" );
                 float toggleWidth = 200;
-                var searchRect = new Rect(searchLabelRect.width, searchLabelRect.y, 400, 30);
+                var recentSearchRect = new Rect(searchLabelRect.xMax, searchLabelRect.y, 25, searchLabelRect.height);
+                if (GUI.Button(recentSearchRect, "..." ))
+                {
+                    searchRecord.ShowCodeExecuteDropDown(delegate (object content) { mLuaVarTreeView.searchString = content as string; }, this);
+                }
+                var searchRect = new Rect(recentSearchRect.xMax, searchLabelRect.y, 400, 30);
                 mLuaVarTreeView.searchString = mSearchField.OnGUI(searchRect, mLuaVarTreeView.searchString);
                 var toggle = GUI.Toggle(new Rect( searchRect.xMax+20,searchRect.y, toggleWidth, searchRect.height), mLuaVarTreeView.IgnoreFunction, new GUIContent("忽略函数"));
                 if (toggle != mLuaVarTreeView.IgnoreFunction)

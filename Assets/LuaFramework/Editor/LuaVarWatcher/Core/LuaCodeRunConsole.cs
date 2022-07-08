@@ -18,6 +18,7 @@ namespace LuaVarWatcher
 
         private LRUContentRecorder contentRecorder;
         private LRUContentRecorder reloadRecorder;
+        private LRUContentRecorder searchRecord;
         private GUIContent debugContent;
         private TCPCodeServer mCodeServer =new TCPCodeServer();
         private EditorWindow mOwnerWindow;
@@ -26,6 +27,7 @@ namespace LuaVarWatcher
         {
             contentRecorder = new LRUContentRecorder("LuaDebugCache/RecentExecuteCode.json");
             reloadRecorder = new LRUContentRecorder("LuaDebugCache/RecentReloadCode.json");
+            searchRecord = new LRUContentRecorder("LuaDebugCache/RecentSearchNode.json");
 
             var lastReload = reloadRecorder.GetLastUseContent();
             if (string.IsNullOrEmpty(lastReload) == false)
