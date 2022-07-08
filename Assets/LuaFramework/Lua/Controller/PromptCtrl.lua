@@ -57,12 +57,23 @@ function PromptCtrl.InitPanel(objs)
 	    label:GetComponent('Text').text = tostring(i);
 	end
 end
-local mt = getmetatable(UnityEngine.GameObject)
-local oldFindWithTag = mt["Instantiate"]
-mt["Instantiate"] = function(...)
-    print("callFrom lua Instantiate",debug.traceback())
-    return oldFindWithTag(...)
+--local mt = getmetatable(UnityEngine.GameObject)
+--local oldFindWithTag = mt["Instantiate"]
+--mt["Instantiate"] = function(...)
+--    print("callFrom lua Instantiate",debug.traceback())
+--    return oldFindWithTag(...)
+--end
+
+
+--这里的代码直接放这里是能正确改写UnityEngine.GameObject.Instantiate的函数的，但是如果以 dostring 的形式在C#执行确没效果，WHY?
+if globalFunctionTrapMap==nil then globalFunctionTrapMap={} end
+globalFunctionTrapMap['UnityEngine.GameObject.Instantiate'] =getmetatable(UnityEngine.GameObject)['Instantiate']
+getmetatable(UnityEngine.GameObject)['Instantiate']=function(...)
+    print('lua call--- ' ,'UnityEngine.GameObject.Instantiate',debug.traceback())
+    return globalFunctionTrapMap['UnityEngine.GameObject.Instantiate'](...)
 end
+
+
 --滚动项单击--
 function PromptCtrl.OnItemClick(go)
 

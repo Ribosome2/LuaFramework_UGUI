@@ -198,7 +198,7 @@ namespace LuaVarWatcher
                     GenericMenu menu =new GenericMenu();
                     menu.AddItem(new GUIContent("监测调用"), false,delegate()
                     {
-
+                        CFunctionTrapUtility.SetTrap(GetSingleSelectItemPath());
                     });
                     menu.ShowAsContext();
                 }
