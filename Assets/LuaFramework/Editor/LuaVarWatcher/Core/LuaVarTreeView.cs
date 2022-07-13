@@ -39,6 +39,11 @@ namespace LuaVarWatcher
                         index++;
                     }
                     path = string.Format("{0}.{1}", RootNodeName, path);
+                    const string globalPrefix = "_G.";
+                    if (path.StartsWith(globalPrefix))
+                    {
+                        path = path.Substring(globalPrefix.Length);
+                    }
                     return path;
                 }
             }
@@ -193,14 +198,28 @@ namespace LuaVarWatcher
             if (item != null)
             {
                 var luaItem = item as LuaVarTreeViewItem;
-                if (luaItem != null && luaItem.luaData.luaValueType==LuaTypes.LUA_TFUNCTION)
+                if (luaItem != null )
                 {
-                    GenericMenu menu =new GenericMenu();
-                    menu.AddItem(new GUIContent("监测调用"), false,delegate()
+                    if (luaItem.luaData.luaValueType == LuaTypes.LUA_TFUNCTION)
                     {
-                        CFunctionTrapUtility.SetTrap(GetSingleSelectItemPath());
-                    });
-                    menu.ShowAsContext();
+                        GenericMenu menu = new GenericMenu();
+                        menu.AddItem(new GUIContent("监测调用"), false, delegate ()
+                        {
+                            CFunctionTrapUtility.SetTrap(GetSingleSelectItemPath());
+                        });
+                        menu.ShowAsContext();
+                    }
+
+                    if (luaItem.luaData.luaValueType == LuaTypes.LUA_TTABLE)
+                    {
+                        GenericMenu menu = new GenericMenu();
+                        menu.AddItem(new GUIContent("VarDump"), false, delegate ()
+                        {
+                            LuaHandleInterface.ExecuteStringCmd(string.Format("print('{0} VarDump:',GetVarDump({0}))", GetSingleSelectItemPath()));
+                        });
+                        menu.ShowAsContext();
+                    }
+
                 }
             }
             base.ContextClickedItem(id);

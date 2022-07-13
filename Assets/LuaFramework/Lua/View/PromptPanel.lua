@@ -1,6 +1,5 @@
 local transform;
 local gameObject;
-
 PromptPanel = {};
 local this = PromptPanel;
 myTable={11,"dd",
@@ -12,6 +11,16 @@ myTable={11,"dd",
 		33,44,55
 	},
 }
+
+
+local login=login_pb.LoginRequest();
+login.id = 2000;
+login.name = 'game';
+login.email = 'jarjin@163.com';
+myTable.PB=login
+
+print("table ",GetVarDump(myTable))
+
 print('this is lua=============')
 myTable.PanelInstance =PromptPanel
 local myLocalData = {1111,23123}

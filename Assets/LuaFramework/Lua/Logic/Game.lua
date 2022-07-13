@@ -12,6 +12,7 @@ local print_r = require "3rd/sproto/print_r"
 
 require "Logic/LuaClass"
 require "Logic/CtrlManager"
+require "Logic/VarDumpUtil"
 require "Common/functions"
 require "Controller/PromptCtrl"
 

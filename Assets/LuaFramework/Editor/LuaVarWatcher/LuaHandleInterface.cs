@@ -39,5 +39,20 @@ namespace LuaVarWatcher
         {
 
         }
+
+        public static void ExecuteStringCmd(string cmdStr)
+        {
+            var L = LuaHandleInterface.GetLuaPtr();
+            var oldTop = LuaDLL.lua_gettop(L);
+            if (LuaDLL.luaL_dostring(L, cmdStr))
+            {
+
+            }
+            else
+            {
+                Debug.LogError("执行错误: " + LuaDLL.lua_tostring(L, -1));
+                LuaDLL.lua_settop(L, oldTop);
+            }
+        }
     }
 }
