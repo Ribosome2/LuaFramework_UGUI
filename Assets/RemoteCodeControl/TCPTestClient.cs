@@ -57,6 +57,7 @@ namespace RemoteCodeControl
 
 		void Update()
 		{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
 			while (mMessageQueue.Count > 0)
 			{
 				var msg = mMessageQueue.Dequeue();
@@ -81,6 +82,7 @@ namespace RemoteCodeControl
                 }
                
 			}
+#endif
 		}
 
 		private static void ExecuteLuaCode(string msg)
