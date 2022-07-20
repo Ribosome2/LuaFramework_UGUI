@@ -31,6 +31,11 @@ namespace LuaVarWatcher
             if (recentUseTableRecorder == null)
             {
                 recentUseTableRecorder = new LRUContentRecorder("LuaDebugCache/RecentCheckTable.json");
+                var lastUseContent = recentUseTableRecorder.GetLastUseContent();
+                if (string.IsNullOrEmpty(lastUseContent) == false)
+                {
+                    mTargetTablePath = lastUseContent;
+                }
             }
             if (searchRecord == null)
             {
@@ -80,7 +85,9 @@ namespace LuaVarWatcher
 
         void OnGUI()
         {
+
             var L = LuaHandleInterface.GetLuaPtr();
+            GUILayout.BeginArea(new Rect(0,0,mSplitterDrawer.TreeViewRect.xMax,position.height));
             if (L != IntPtr.Zero)
             {
                 GUILayout.BeginHorizontal();
@@ -115,9 +122,7 @@ namespace LuaVarWatcher
                 GUILayout.EndHorizontal();
 
 
-                mCodeRunConsole.OnGUI(mSplitterDrawer.CodeExcuteRect,L,this);
-                mSplitterDrawer.SetOwnerWindow(this);
-                mSplitterDrawer.OnGUI();
+               
             }
             else
             {
@@ -152,6 +157,11 @@ namespace LuaVarWatcher
             {
                 CheckInit();
             }
+            GUILayout.EndArea();
+
+            mCodeRunConsole.OnGUI(mSplitterDrawer.CodeExecuteRect, L, this);
+            mSplitterDrawer.SetOwnerWindow(this);
+            mSplitterDrawer.OnGUI();
         }
 
 

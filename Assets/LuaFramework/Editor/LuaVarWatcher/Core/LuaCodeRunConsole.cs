@@ -78,25 +78,29 @@ namespace LuaVarWatcher
 
             GUILayout.EndHorizontal();
 
-            GUILayout.Space(10);
+            GUILayout.Space(5);
             GUILayout.BeginHorizontal();
             if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30), GUILayout.Height(35)))
             {
                 contentRecorder.ShowCodeExecuteDropDown(delegate(object content) { executeCodeBlock = content as string; });
             }
           
-            if (GUILayout.Button("执行", GUILayout.Height(35)))
+            if (GUILayout.Button("执行", GUILayout.Height(25)))
             {
-                var oldTop = LuaDLL.lua_gettop(L);
-                if (LuaDLL.luaL_dostring(L, executeCodeBlock))
+                if (L != IntPtr.Zero)
                 {
-                    contentRecorder.AddUseRecord(executeCodeBlock);
+                    var oldTop = LuaDLL.lua_gettop(L);
+                    if (LuaDLL.luaL_dostring(L, executeCodeBlock))
+                    {
+                        contentRecorder.AddUseRecord(executeCodeBlock);
+                    }
+                    else
+                    {
+                        Debug.LogError("执行错误: " + LuaDLL.lua_tostring(L, -1));
+                        LuaDLL.lua_settop(L, oldTop);
+                    }
                 }
-                else
-                {
-                    Debug.LogError("执行错误: " + LuaDLL.lua_tostring(L,-1));
-                    LuaDLL.lua_settop(L,oldTop);
-                }
+                
             }
             GUILayout.EndHorizontal();
             scroll = EditorGUILayout.BeginScrollView(scroll);

@@ -41,7 +41,7 @@ namespace LuaVarWatcher
         private float m_ToolbarHeight = 100f;
         public Action onSplitSizeChange;
 
-        [NonSerialized] public Rect CodeExcuteRect;
+        [NonSerialized] public Rect CodeExecuteRect;
         [NonSerialized] public Rect TreeViewRect;
 
         private GuiStyleHelper _guiStyleHelper;
@@ -53,7 +53,7 @@ namespace LuaVarWatcher
             }
             CalculateRects();
             ResizeHandling(_window, _window.position.height - this.m_ToolbarHeight);
-            SplitterGuiUtil.DrawHorizontalSplitter(new Rect(this.CodeExcuteRect.x, this.m_ToolbarHeight, 1f,
+            SplitterGuiUtil.DrawHorizontalSplitter(new Rect(this.CodeExecuteRect.x, this.m_ToolbarHeight, 1f,
                 this.TreeViewRect.height));
         }
 
@@ -81,7 +81,7 @@ namespace LuaVarWatcher
             float bottomBarHeight = 0;
 
             float width = _window.position.width - this.m_DirectoriesAreaWidth;
-            this.CodeExcuteRect = new Rect(this.m_DirectoriesAreaWidth, this.m_ToolbarHeight , width,_window.position.height - this.m_ToolbarHeight  - bottomBarHeight);
+            this.CodeExecuteRect = new Rect(this.m_DirectoriesAreaWidth, 5 , width,_window.position.height   -bottomBarHeight);
             this.TreeViewRect = new Rect(0.0f, this.m_ToolbarHeight, this.m_DirectoriesAreaWidth,_window.position.height - this.m_ToolbarHeight);
            
         }
