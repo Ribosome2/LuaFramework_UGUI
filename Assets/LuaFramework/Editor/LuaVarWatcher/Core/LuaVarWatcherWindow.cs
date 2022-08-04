@@ -94,12 +94,16 @@ namespace LuaVarWatcher
                 GUILayout.Label("目标table：",GUILayout.Width(80));
                 if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30), GUILayout.Height(35)))
                 {
+                    GUIUtility.hotControl = 0;
+                    GUIUtility.keyboardControl = 0;
                     recentUseTableRecorder.ShowCodeExecuteDropDown( delegate (object content) { mTargetTablePath = content as string; },this);
                 }
                 mTargetTablePath = EditorGUILayout.TextField("", mTargetTablePath);
                 if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30)))
                 {
-                    mCommonDropDownList= new CommonDropDownList("LuaVarCommonTableConfig.json");
+                    GUIUtility.hotControl = 0;
+                    GUIUtility.keyboardControl = 0;
+                    mCommonDropDownList = new CommonDropDownList("LuaVarCommonTableConfig.json");
                     mCommonDropDownList.ShowDropDown(delegate(object data) { mTargetTablePath = (string)data; });
                 }
                 mAutoRefresh =EditorGUILayout.Toggle("AutoRefresh", mAutoRefresh);
@@ -137,6 +141,7 @@ namespace LuaVarWatcher
                 var recentSearchRect = new Rect(searchLabelRect.xMax, searchLabelRect.y, 25, searchLabelRect.height);
                 if (GUI.Button(recentSearchRect, "..." ))
                 {
+                    GUIUtility.hotControl = 0;
                     searchRecord.ShowCodeExecuteDropDown(delegate (object content) { mLuaVarTreeView.searchString = content as string; }, this);
                 }
                 var searchRect = new Rect(recentSearchRect.xMax, searchLabelRect.y, 400, 30);

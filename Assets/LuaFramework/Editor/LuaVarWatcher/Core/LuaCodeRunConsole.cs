@@ -65,6 +65,8 @@ namespace LuaVarWatcher
             EditorGUILayout.LabelField("重载路径：", reloadPath,GUILayout.Width(70));
             if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30), GUILayout.Height(35)))
             {
+                GUIUtility.hotControl = 0;
+                GUIUtility.keyboardControl = 0;
                 reloadRecorder.ShowCodeExecuteDropDown( delegate (object content) { reloadPath = content as string; });
             }
 
@@ -80,9 +82,16 @@ namespace LuaVarWatcher
 
             GUILayout.Space(5);
             GUILayout.BeginHorizontal();
+            GUI.SetNextControlName("I Don't Care");
             if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30), GUILayout.Height(35)))
             {
-                contentRecorder.ShowCodeExecuteDropDown(delegate(object content) { executeCodeBlock = content as string; });
+                GUIUtility.hotControl = 0;
+                GUIUtility.keyboardControl = 0;
+                contentRecorder.ShowCodeExecuteDropDown(delegate(object content)
+                {
+                    executeCodeBlock = content as string;
+                    ownerWindow.Repaint();
+                });
             }
           
             if (GUILayout.Button("执行", GUILayout.Height(25)))
@@ -113,6 +122,8 @@ namespace LuaVarWatcher
             mCodeServer.IP= GUILayout.TextField(mCodeServer.IP);
             if (EditorGUILayout.DropdownButton(new GUIContent("选IP"), FocusType.Passive, GUILayout.Width(70), GUILayout.Height(35)))
             {
+                GUIUtility.hotControl = 0;
+                GUIUtility.keyboardControl = 0;
                 SelectStartIP(delegate (object content) { mCodeServer.IP = content as string; });
             }
 
