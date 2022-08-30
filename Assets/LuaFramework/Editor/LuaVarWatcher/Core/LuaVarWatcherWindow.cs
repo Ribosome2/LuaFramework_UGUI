@@ -154,7 +154,7 @@ namespace LuaVarWatcher
                 }
 
                 var treeRect = mSplitterDrawer.TreeViewRect;
-                GUI.Label(new Rect(treeRect.x, treeRect.y-20,treeRect.width,25),mLuaVarTreeView.GetSingleSelectItemPath());
+                EditorGUI.TextField(new Rect(treeRect.x, treeRect.y-20,treeRect.width,25),mLuaVarTreeView.GetSingleSelectItemPath());
                 mLuaVarTreeView.OnGUI(mSplitterDrawer.TreeViewRect);
 
             }
