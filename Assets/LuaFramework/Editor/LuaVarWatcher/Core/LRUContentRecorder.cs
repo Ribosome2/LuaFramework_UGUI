@@ -94,7 +94,6 @@ namespace LuaVarWatcher
                     cleanContent = cleanContent.Substring(0, maxContentLength-1);
                 }
                 cleanContent = cleanContent.Replace('\\', ' ');
-                cleanContent = cleanContent.Replace('/', ' ');
                 cleanContent = cleanContent.Replace('\n', ' ');
                 menu.AddItem(new GUIContent(cleanContent), false, func, content.Trim());
             }
