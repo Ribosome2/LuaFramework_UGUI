@@ -17,8 +17,11 @@ local function cleanup_key_value(input)
         else
             val_type = "userdata"
         end
-        local parent = v:match("0x(%w+) :")
-        local _, finish = v:find("0x(%w+) : ")
+        --local parent = v:match("0x(%w+) :")
+        local parent = v:match("\n(%w+) :")
+        --local _, finish = v:find("0x(%w+) : ")
+        --在tolua里面返回的是table\n0000000014570378 : S1 : logic/dump:36 这种格式的， 没有0x开头的十六进制格式，所有用换行符分隔就行
+        local _, finish = v:find("\n(%w+) : ")
         local extra = v:sub(finish + 1, #v)
         local val_key = extra:match("(%w+) :")
         local trim_extra = trim(extra)
