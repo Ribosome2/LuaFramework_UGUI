@@ -82,6 +82,37 @@ function PromptCtrl.OnItemClick(go)
     log(go.name);
 end
 
+-- Lua内存记录功能
+local preLuaSnapshot = nil
+local function snapshotLuaMemory(sender, menu, value)
+    -- 首先统计Lua内存占用的情况
+    print("GC前, Lua内存为:", collectgarbage("count"))
+    -- collectgarbage()
+    -- print("GC后, Lua内存为:", collectgarbage("count"))
+
+    local snapshot = require "snapshot"
+    local curLuaSnapshot = snapshot.snapshot()
+    local ret = {}
+    local count = 0
+    if preLuaSnapshot ~= nil then
+        for k,v in pairs(curLuaSnapshot) do
+            if preLuaSnapshot[k] == nil then
+                count = count + 1
+                ret[k] = v
+            end
+        end
+    end
+
+    for k, v in pairs(ret) do
+        print(k)
+        print(v)
+    end
+
+    print ("Lua snapshot diff object count is " .. count)
+    preLuaSnapshot = curLuaSnapshot
+
+end
+
 --单击事件--
 function PromptCtrl.OnClick(go)
 	if TestProtoType == ProtocalType.BINARY then
@@ -99,16 +130,18 @@ function PromptCtrl.OnClick(go)
 	logWarn("OnClick---->>>"..go.name);
 
     logWarn("Awake lua--1111->>"..gameObject.name);
-	print("myRable",myTable," ",myTable[1])
-	myTable.secondTable[1]=myTable.secondTable[1]+10
+	--print("myRable",myTable," ",myTable[1])
+	--myTable.secondTable[1]=myTable.secondTable[1]+10
 
-    if RemoteCodeControl.TCPTestClient.Instance:IsConnected() then
-        RemoteCodeControl.TCPTestClient.Instance:SendMessageToServer("This is from lua")
-    else
-        RemoteCodeControl.TCPTestClient.Instance:ConnectToTcpServer("127.0.0.1",8052)
-    end
-
+    --if RemoteCodeControl.TCPTestClient.Instance:IsConnected() then
+    --    RemoteCodeControl.TCPTestClient.Instance:SendMessageToServer("This is from lua")
+    --else
+    --    RemoteCodeControl.TCPTestClient.Instance:ConnectToTcpServer("127.0.0.1",8052)
+    --end
+    snapshotLuaMemory()
 end
+
+
 
 --测试发送SPROTO--
 function PromptCtrl.TestSendSproto()
