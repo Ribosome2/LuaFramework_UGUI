@@ -139,7 +139,7 @@ function PromptCtrl.OnClick(go)
     --    RemoteCodeControl.TCPTestClient.Instance:ConnectToTcpServer("127.0.0.1",8052)
     --end
     require("logic.dump")
-    --snapshotLuaMemory()
+    snapshotLuaMemory()
 end
 
 

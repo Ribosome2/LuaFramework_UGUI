@@ -6,7 +6,7 @@ local function cleanup_key_value(input)
     local ret = {}
     for k, v in pairs(input) do
         local key = tostring(k)
-        local clean_key = key:gmatch("userdata: 0x(%w+)")()
+        local clean_key = key:gmatch("userdata: (%w+)")()
         local val_type
         if v:find("^table") then
             val_type = "table"
