@@ -101,7 +101,9 @@ function PromptCtrl.OnClick(go)
     logWarn("Awake lua--1111->>"..gameObject.name);
 	print("myRable",myTable," ",myTable[1])
 	myTable.secondTable[1]=myTable.secondTable[1]+10
-    require("logic.mem_stats").List()
+    local mem_stats = require("logic.mem_stats")
+    mem_stats.List()
+    mem_stats.DumpMemoryToFile()
     --if RemoteCodeControl.TCPTestClient.Instance:IsConnected() then
     --    RemoteCodeControl.TCPTestClient.Instance:SendMessageToServer("This is from lua")
     --else
