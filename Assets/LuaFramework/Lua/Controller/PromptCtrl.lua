@@ -102,6 +102,7 @@ function PromptCtrl.OnClick(go)
 	print("myRable",myTable," ",myTable[1])
 	myTable.secondTable[1]=myTable.secondTable[1]+10
     local mem_stats = require("logic.mem_stats")
+    mem_stats.InitDumpFile()
     mem_stats.List()
     mem_stats.DumpMemoryToFile()
     --if RemoteCodeControl.TCPTestClient.Instance:IsConnected() then

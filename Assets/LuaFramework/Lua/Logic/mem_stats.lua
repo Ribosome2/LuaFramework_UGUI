@@ -1,23 +1,8 @@
 local outPutFile
-outPutFile = io.open("luaMemoryStats.txt", "w+")  --comment this if you want to just print
 local tableConcat = table.concat
 local oldPrint = print
 local print =print
-if outPutFile then
-    if outPutFile then
-        print=function(...)
-            --override print to make redirect log string to files
-            local args = {...}
 
-            local strT ={}
-            for i, v in ipairs(args) do
-                strT[#strT+1]=tostring(v)
-            end
-            strT[#strT+1]="\n"
-            outPutFile:write(tableConcat(strT,"\t"))
-        end
-    end
-end
 
 local MAX_QUEUE = 1000000
 
@@ -212,10 +197,26 @@ function M.Clear()
     TotalCount = nil
 end
 
+function M.InitDumpFile()
+    outPutFile = io.open("luaMemoryStats.txt", "w+")  --comment this if you want to just print
+    print=function(...)
+        --override print to make redirect log string to files
+        local args = {...}
+
+        local strT ={}
+        for i, v in ipairs(args) do
+            strT[#strT+1]=tostring(v)
+        end
+        strT[#strT+1]="\n"
+        outPutFile:write(tableConcat(strT,"\t"))
+    end
+end
 function M.DumpMemoryToFile()
     if outPutFile then
         io.close(outPutFile)
     end
 end
+
+
 
 return M
