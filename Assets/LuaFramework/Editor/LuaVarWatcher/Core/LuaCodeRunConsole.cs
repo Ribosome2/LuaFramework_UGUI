@@ -28,6 +28,7 @@ namespace LuaVarWatcher
         private const int quickActionWidth = 100;
         private QuickActionsConfig quickActionsConfig;
         public bool showQuickAction=true;
+        public Vector2 quickActionScroll;
         public LuaCodeRunConsole()
         {
             contentRecorder = new LRUContentRecorder("LuaDebugCache/RecentExecuteCode.json");
@@ -72,6 +73,7 @@ namespace LuaVarWatcher
         {
             GUILayout.BeginArea(drawRect);
             GUILayout.Label("快捷菜单:");
+            quickActionScroll=GUILayout.BeginScrollView(quickActionScroll);
             if (quickActionsConfig != null)
             {
                 foreach (var actionsItem in quickActionsConfig.ActionList)
@@ -90,6 +92,7 @@ namespace LuaVarWatcher
                     }
                 }
             }
+            GUILayout.EndScrollView();
 
             GUILayout.EndArea();
         }
