@@ -10,6 +10,8 @@ using UnityEngine;
 
 namespace LuaVarWatcher
 {
+
+
     public class LuaCodeRunConsole
     {
         private string reloadPath = "";
@@ -23,11 +25,15 @@ namespace LuaVarWatcher
         private TCPCodeServer mCodeServer =new TCPCodeServer();
         private EditorWindow mOwnerWindow;
         Queue<string> mMessageQueue = new Queue<string>();
+        private const int quickActionWidth = 100;
+        private QuickActionsConfig quickActionsConfig;
+        public bool showQuickAction=true;
         public LuaCodeRunConsole()
         {
             contentRecorder = new LRUContentRecorder("LuaDebugCache/RecentExecuteCode.json");
             reloadRecorder = new LRUContentRecorder("LuaDebugCache/RecentReloadCode.json");
             searchRecord = new LRUContentRecorder("LuaDebugCache/RecentSearchNode.json");
+            quickActionsConfig = new QuickActionsConfig("Tools/LuaCodeTool/QuickAction.json");
 
             var lastReload = reloadRecorder.GetLastUseContent();
             if (string.IsNullOrEmpty(lastReload) == false)
@@ -49,25 +55,87 @@ namespace LuaVarWatcher
         public void OnGUI(Rect drawArea,IntPtr L ,EditorWindow ownerWindow)
         {
             mOwnerWindow = ownerWindow;
-            GUILayout.BeginArea(drawArea);
+            var consoleRect = drawArea;
+            if (showQuickAction)
+            {
+                consoleRect.width = drawArea.width - quickActionWidth;
+                var quickActionRect = consoleRect;
+                quickActionRect.x = consoleRect.xMax;
+                quickActionRect.width = quickActionWidth;
+                DrawQuickActions(quickActionRect, L);
+            }
+            DrawMainContent( L, ownerWindow, consoleRect);
+           
+        }
+
+        void DrawQuickActions(Rect drawRect, IntPtr L)
+        {
+            GUILayout.BeginArea(drawRect);
+            GUILayout.Label("快捷菜单:");
+            if (quickActionsConfig != null)
+            {
+                foreach (var actionsItem in quickActionsConfig.ActionList)
+                {
+                    if (string.IsNullOrEmpty(actionsItem.Name))
+                    {
+                        GUILayout.Space(actionsItem.Height);
+                    }
+                    else
+                    {
+                        if (GUILayout.Button(actionsItem.Name,
+                            GUILayout.Height(actionsItem.Height)))
+                        {
+                            TryExecuteCode(L, actionsItem.TargetCode);
+                        }
+                    }
+                }
+            }
+
+            GUILayout.EndArea();
+        }
+
+        static void TryExecuteCode(IntPtr L,string codeContent)
+        {
+            if (L != IntPtr.Zero)
+            {
+                var oldTop = LuaDLL.lua_gettop(L);
+                if (!LuaDLL.luaL_dostring(L, codeContent))
+                {
+                    Debug.LogError("执行错误: " + LuaDLL.lua_tostring(L, -1));
+                    LuaDLL.lua_settop(L, oldTop);
+                }
+            }
+        }
+
+
+        private void DrawMainContent( IntPtr L, EditorWindow ownerWindow, Rect consoleRect)
+        {
+            GUILayout.BeginArea(consoleRect);
+            GUILayout.BeginHorizontal();
             if (debugContent == null)
             {
                 debugContent = new GUIContent();
                 debugContent.text = "Debugger";
                 debugContent.image = Resources.Load<Texture2D>("attachDebugIcon");
             }
-            if (GUILayout.Button(debugContent, GUILayout.Width(100),GUILayout.Height(30)))
+
+          
+            GUILayout.EndHorizontal();
+
+            if (GUILayout.Button(debugContent, GUILayout.Width(100), GUILayout.Height(30)))
             {
                 LuaHandleInterface.ConnectDebugger();
             }
+
             GUILayout.BeginHorizontal();
 
-            EditorGUILayout.LabelField("重载路径：", reloadPath,GUILayout.Width(70));
-            if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30), GUILayout.Height(35)))
+            EditorGUILayout.LabelField("重载路径：", reloadPath, GUILayout.Width(70));
+            if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive,
+                GUILayout.Width(30), GUILayout.Height(35)))
             {
                 GUIUtility.hotControl = 0;
                 GUIUtility.keyboardControl = 0;
-                reloadRecorder.ShowCodeExecuteDropDown( delegate (object content) { reloadPath = content as string; });
+                reloadRecorder.ShowCodeExecuteDropDown(delegate(object content) { reloadPath = content as string; });
             }
 
             reloadPath = EditorGUILayout.TextField("", reloadPath);
@@ -83,7 +151,8 @@ namespace LuaVarWatcher
             GUILayout.Space(5);
             GUILayout.BeginHorizontal();
             GUI.SetNextControlName("I Don't Care");
-            if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive, GUILayout.Width(30), GUILayout.Height(35)))
+            if (EditorGUILayout.DropdownButton(new GUIContent(EditorGUIUtility.FindTexture("Favorite Icon")), FocusType.Passive,
+                GUILayout.Width(30), GUILayout.Height(35)))
             {
                 GUIUtility.hotControl = 0;
                 GUIUtility.keyboardControl = 0;
@@ -93,7 +162,7 @@ namespace LuaVarWatcher
                     ownerWindow.Repaint();
                 });
             }
-          
+
             if (GUILayout.Button("执行", GUILayout.Height(25)))
             {
                 if (L != IntPtr.Zero)
@@ -109,29 +178,31 @@ namespace LuaVarWatcher
                         LuaDLL.lua_settop(L, oldTop);
                     }
                 }
-                
             }
+            GUILayout.Label("快捷指令：",GUILayout.Width(50));
+            showQuickAction =GUILayout.Toggle( showQuickAction,"", GUILayout.Width(50));
             GUILayout.EndHorizontal();
             scroll = EditorGUILayout.BeginScrollView(scroll);
 
-            executeCodeBlock = EditorGUILayout.TextArea(executeCodeBlock, GUILayout.Height(drawArea.height - 120));
+            executeCodeBlock = EditorGUILayout.TextArea(executeCodeBlock, GUILayout.Height(consoleRect.height - 120));
             EditorGUILayout.EndScrollView();
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("IP:",GUILayout.Width(50));
-            mCodeServer.IP= GUILayout.TextField(mCodeServer.IP);
-            if (EditorGUILayout.DropdownButton(new GUIContent("选IP"), FocusType.Passive, GUILayout.Width(70), GUILayout.Height(35)))
+            GUILayout.Label("IP:", GUILayout.Width(50));
+            mCodeServer.IP = GUILayout.TextField(mCodeServer.IP);
+            if (EditorGUILayout.DropdownButton(new GUIContent("选IP"), FocusType.Passive, GUILayout.Width(70),
+                GUILayout.Height(35)))
             {
                 GUIUtility.hotControl = 0;
                 GUIUtility.keyboardControl = 0;
-                SelectStartIP(delegate (object content) { mCodeServer.IP = content as string; });
+                SelectStartIP(delegate(object content) { mCodeServer.IP = content as string; });
             }
 
 
             var serverButtonHeight = 20;
             if (!mCodeServer.IsServerStarted)
             {
-                if (GUILayout.Button("StartServer",GUILayout.Height(serverButtonHeight)))
+                if (GUILayout.Button("StartServer", GUILayout.Height(serverButtonHeight)))
                 {
                     mCodeServer.Start();
                     mCodeServer.SetClientMsgCallBack(this.ClientMsgCallBack);
@@ -144,13 +215,13 @@ namespace LuaVarWatcher
                     mCodeServer.ShutDown();
                 }
             }
-           
+
             if (GUILayout.Button("SendMsg", GUILayout.Height(serverButtonHeight)))
             {
                 mCodeServer.SendMessage(JsonUtility.ToJson(new RemoteCodeControl.RemoteCodeControlMessage()
                 {
                     Content = executeCodeBlock,
-                    ID = (int)RemoteCodeControlMessageType.Command
+                    ID = (int) RemoteCodeControlMessageType.Command
                 }));
             }
 
@@ -158,6 +229,7 @@ namespace LuaVarWatcher
             {
                 TryReloadInRemote(reloadPath);
             }
+
             GUILayout.EndHorizontal();
 
             GUILayout.EndArea();
