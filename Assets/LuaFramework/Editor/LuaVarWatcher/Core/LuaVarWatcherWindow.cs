@@ -13,10 +13,10 @@ namespace LuaVarWatcher
 {
     public class LuaVarWatcherWindow : EditorWindow
     {
-        [MenuItem("KyleKit/LuaVarWatcher")]
+        [MenuItem("KyleKit/Lua调试窗口")]
         public static void OpenWindow()
         {
-            GetWindow<LuaVarWatcherWindow>();
+            GetWindow<LuaVarWatcherWindow>().titleContent = new GUIContent("Lua调试窗口");
         }
 
         private LRUContentRecorder recentUseTableRecorder;
