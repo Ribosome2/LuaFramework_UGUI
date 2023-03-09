@@ -38,7 +38,46 @@ function PromptCtrl.OnCreate(obj)
 	logWarn("Start lua--->>"..gameObject.name);
 
 	prompt:AddClick(PromptPanel.btnOpen, this.OnClick);
+	prompt:AddClick(PromptPanel.btnSnapShot, this.OnClickSnapshot);
 	resMgr:LoadPrefab('prompt', { 'PromptItem' }, this.InitPanel);
+end
+
+
+local preLuaSnapshot = nil
+local function snapshotLuaMemory(sender, menu, value)
+    -- 首先统计Lua内存占用的情况
+    print("GC前, Lua内存为:", collectgarbage("count"))
+    -- collectgarbage()
+    -- print("GC后, Lua内存为:", collectgarbage("count"))
+
+    local snapshot = require "snapshot"
+    local curLuaSnapshot = snapshot.snapshot()
+    local ret = {}
+    local count = 0
+    if preLuaSnapshot ~= nil then
+        for k,v in pairs(curLuaSnapshot) do
+            if preLuaSnapshot[k] == nil then
+                count = count + 1
+                ret[k] = v
+            end
+        end
+    end
+
+    for k, v in pairs(ret) do
+        print(k)
+        print(v)
+    end
+
+    print ("Lua snapshot diff object count is " .. count)
+    preLuaSnapshot = curLuaSnapshot
+
+end
+
+
+function PromptCtrl.OnClickSnapshot()
+    logError("snapshotClick")
+    require("logic.dump")
+    snapshotLuaMemory()
 end
 
 --初始化面板--
