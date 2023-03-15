@@ -207,12 +207,16 @@ namespace LuaInterface
     {
         public static string version = "1.0.7.386";
         public static int LUA_MULTRET = -1;
-        public static string[] LuaTypeName = { "none", "nil", "boolean", "lightuserdata", "number", "string", "table", "function", "userdata", "thread" };        
+        public static string[] LuaTypeName = { "none", "nil", "boolean", "lightuserdata", "number", "string", "table", "function", "userdata", "thread" };
 
 #if !UNITY_EDITOR && UNITY_IPHONE
         const string LUADLL = "__Internal";
 #else
-        const string LUADLL = "tolua";
+    #if USE_TOLUA_PLUS
+            const string LUADLL = "tolua_plus";
+    #else
+            const string LUADLL = "tolua.dll";
+    #endif
 #endif
         /*
         ** third party library
@@ -249,9 +253,10 @@ namespace LuaInterface
 
         [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
         public static extern int luaopen_cjson_safe(IntPtr L);
-
-        [DllImport("snapshot", CallingConvention = CallingConvention.Cdecl)]
+#if USE_TOLUA_PLUS
+        [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
         public static extern int luaopen_snapshot(IntPtr L);
+#endif
         /*
          ** pseudo-indices
          */

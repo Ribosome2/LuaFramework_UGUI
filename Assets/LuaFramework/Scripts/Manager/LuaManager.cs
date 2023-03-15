@@ -57,12 +57,15 @@ namespace LuaFramework {
         /// </summary>
         void OpenLibs() {
             lua.OpenLibs(LuaDLL.luaopen_pb);      
-            lua.OpenLibs(LuaDLL.luaopen_sproto_core);
-            lua.OpenLibs(LuaDLL.luaopen_protobuf_c);
+//            lua.OpenLibs(LuaDLL.luaopen_sproto_core);
+//            lua.OpenLibs(LuaDLL.luaopen_protobuf_c);
             lua.OpenLibs(LuaDLL.luaopen_lpeg);
             lua.OpenLibs(LuaDLL.luaopen_bit);
-            lua.OpenLibs(LuaDLL.luaopen_socket_core);
+//            lua.OpenLibs(LuaDLL.luaopen_socket_core);
+#if USE_TOLUA_PLUS
+            Debug.LogError("开始注册tolua_plus，注意只应该在编辑器用");
             lua.OpenLibs(LuaDLL.luaopen_snapshot);
+#endif
 
             this.OpenCJson();
         }

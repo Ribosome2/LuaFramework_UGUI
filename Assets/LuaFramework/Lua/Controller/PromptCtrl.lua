@@ -1,11 +1,11 @@
 require "Common/define"
 
 require "3rd/pblua/login_pb"
-require "3rd/pbc/protobuf"
+--require "3rd/pbc/protobuf"
 
-local sproto = require "3rd/sproto/sproto"
-local core = require "sproto.core"
-local print_r = require "3rd/sproto/print_r"
+--local sproto = require "3rd/sproto/sproto"
+--local core = require "sproto.core"
+--local print_r = require "3rd/sproto/print_r"
 PromptCtrl = {};
 local this = PromptCtrl;
 
@@ -49,27 +49,29 @@ local function snapshotLuaMemory(sender, menu, value)
     print("GC前, Lua内存为:", collectgarbage("count"))
     -- collectgarbage()
     -- print("GC后, Lua内存为:", collectgarbage("count"))
-
+    package.cpath = package.cpath .. ';D:/MyGitHub/LuaFramework_UGUI/Assets/Plugins/x86_64/?.dll'
     local snapshot = require "snapshot"
-    local curLuaSnapshot = snapshot.snapshot()
-    local ret = {}
-    local count = 0
-    if preLuaSnapshot ~= nil then
-        for k,v in pairs(curLuaSnapshot) do
-            if preLuaSnapshot[k] == nil then
-                count = count + 1
-                ret[k] = v
-            end
-        end
-    end
-
-    for k, v in pairs(ret) do
-        print(k)
-        print(v)
-    end
-
-    print ("Lua snapshot diff object count is " .. count)
-    preLuaSnapshot = curLuaSnapshot
+    print("snaoshot ",snapshot)
+    --print("snaoshot--- ",snapshot.snaoshot)
+    --local curLuaSnapshot = snapshot.snapshot()
+    --local ret = {}
+    --local count = 0
+    --if preLuaSnapshot ~= nil then
+    --    for k,v in pairs(curLuaSnapshot) do
+    --        if preLuaSnapshot[k] == nil then
+    --            count = count + 1
+    --            ret[k] = v
+    --        end
+    --    end
+    --end
+    --
+    --for k, v in pairs(ret) do
+    --    print(k)
+    --    print(v)
+    --end
+    --
+    --print ("Lua snapshot diff object count is " .. count)
+    --preLuaSnapshot = curLuaSnapshot
 
 end
 
