@@ -215,7 +215,7 @@ namespace LuaInterface
     #if USE_TOLUA_PLUS
             const string LUADLL = "tolua_plus";
     #else
-            const string LUADLL = "tolua.dll";
+            const string LUADLL = "tolua";
     #endif
 #endif
         /*
