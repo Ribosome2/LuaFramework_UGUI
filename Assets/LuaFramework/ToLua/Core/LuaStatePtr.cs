@@ -686,9 +686,6 @@ namespace LuaInterface
         {
             return LuaDLL.lua_gethookcount(L);
         }
-        public IntPtr LuaPtrForEditorOnly
-        {
-            get { return L; }
-        }
+
     }
 }

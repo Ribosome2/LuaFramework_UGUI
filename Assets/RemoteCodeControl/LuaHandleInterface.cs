@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using LuaFramework;
 using LuaInterface;
 
@@ -16,16 +17,21 @@ namespace RemoteCodeControl
             return null;
         }
 
+        private static IntPtr s_LuaPointer = IntPtr.Zero;
         public static IntPtr GetLuaPtr()
         {
             var lusState = GetLuaStateInstance();
-            if (lusState != null)
+            if (lusState != null && s_LuaPointer == IntPtr.Zero)
             {
-                return lusState.LuaPtrForEditorOnly;
+                Type myClassType = typeof(LuaState);
+                FieldInfo myProtectedVarInfo =
+                    myClassType.GetField("L", BindingFlags.NonPublic | BindingFlags.Instance);
+                object myProtectedVarValue = myProtectedVarInfo.GetValue(lusState);
+                s_LuaPointer = (IntPtr)myProtectedVarValue;
             }
-            return IntPtr.Zero;
-        }
 
+            return s_LuaPointer;
+        }
 
         public static void ReloadLuaFile(string luaPath)
         {
